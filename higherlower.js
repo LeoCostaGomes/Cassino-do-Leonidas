@@ -198,16 +198,22 @@ const nomesNumeros = {
    MULTIPLICADORES
    ========================================================= */
 
-const multiplicadores = [
+const MULTIPLICADOR_INICIAL = 1;
+const INCREMENTO_MULTIPLICADOR = 0.25;
 
-    1,
-    1.5,
-    2,
-    3,
-    5,
-    8
+function obterMultiplicador() {
 
-];
+    if (sequencia <= 0) {
+        return MULTIPLICADOR_INICIAL;
+    }
+
+    return (
+        MULTIPLICADOR_INICIAL +
+        (sequencia - 1) *
+        INCREMENTO_MULTIPLICADOR
+    );
+
+}
 
 
 /* =========================================================
@@ -294,7 +300,7 @@ function criarBaralho() {
 
                     nome:
                         nomesNumeros[
-                            valor
+                        valor
                         ],
 
                     naipe:
@@ -332,10 +338,10 @@ function criarBaralho() {
             novoBaralho[i],
             novoBaralho[j]
         ] =
-        [
-            novoBaralho[j],
-            novoBaralho[i]
-        ];
+            [
+                novoBaralho[j],
+                novoBaralho[i]
+            ];
 
     }
 
@@ -570,14 +576,7 @@ function atualizarInterface() {
 
 
     const multiplicadorAtual =
-        sequencia === 0
-            ? 1
-            : multiplicadores[
-                Math.min(
-                    sequencia - 1,
-                    multiplicadores.length - 1
-                )
-            ];
+        obterMultiplicador();
 
 
     currentMultiplierElement.textContent =
@@ -1013,17 +1012,15 @@ async function escolher(
     sequencia++;
 
 
-    const indice =
-        Math.min(
-            sequencia - 1,
-            multiplicadores.length - 1
-        );
-
-
     const multiplicador =
-        multiplicadores[
-            indice
-        ];
+        obterMultiplicador();
+
+
+    premioAtual =
+        Math.floor(
+            apostaAtual *
+            multiplicador
+        );
 
 
     premioAtual =
@@ -1057,53 +1054,11 @@ async function escolher(
     atualizarInterface();
 
 
-    /*
-        Último nível.
-    */
-
-    if (
-        sequencia >=
-        multiplicadores.length
-    ) {
-
-        cashoutButton.disabled =
-            true;
-
-        higherButton.disabled =
-            true;
-
-        lowerButton.disabled =
-            true;
-
-
-        mostrarMensagem(
-            `JACKPOT! VOCÊ CHEGOU A ${multiplicador}x! +${premioAtual.toLocaleString("pt-BR")} ◆`,
-            "jackpot"
-        );
-
-
-        await esperar(
-            1000
-        );
-
-
-        receberPremio();
-
-        return;
-
-    }
-
-
     mostrarMensagem(
         `ACERTOU! PRÊMIO ATUAL: ${premioAtual.toLocaleString("pt-BR")} ◆`,
         "win"
     );
 
-
-    /*
-        Agora o jogador pode sacar
-        ou continuar.
-    */
 
     cashoutButton.disabled =
         false;
