@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Higher or Lower - Cassino do Leônidas
+    </title>
+
+    <!-- Fontes -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="higherlower.css"
+    >
+
+</head>
+
+<body>
+
+
+    <!-- =====================================================
+         CABEÇALHO
+         ===================================================== -->
+
+    <header class="top-bar">
+
+        <button
+            class="back-button"
+            onclick="window.location.href='index.html'"
+        >
+            ← VOLTAR
+        </button>
+
+
+        <div class="logo">
+
+            <span class="logo-main">
+                CASSINO
+            </span>
+
+            <span class="logo-sub">
+                DO LEÔNIDAS
+            </span>
+
+        </div>
+
+
+        <div class="gold-balance">
+
+            <div class="gold-icon">
+                ◆
+            </div>
+
+            <div class="gold-info">
+
+                <span class="gold-label">
+                    PEPITAS
+                </span>
+
+                <span id="gold-amount">
+                    0
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         PÁGINA
+         ===================================================== -->
+
+    <main class="game-page">
+
+        <section class="game-section">
+
+
+            <!-- =================================================
+                 CABEÇALHO DO JOGO
+                 ================================================= -->
+
+            <div class="game-heading">
+
+                <span class="eyebrow">
+                    JOGO 3
+                </span>
+
+                <h1>
+                    HIGHER OR LOWER
+                </h1>
+
+                <div class="gold-line"></div>
+
+                <p>
+                    A próxima carta será maior ou menor?
+                </p>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 ÁREA PRINCIPAL
+                 ================================================= -->
+
+            <div class="game-panel">
+
+
+                <!-- =================================================
+                     STATUS
+                     ================================================= -->
+
+                <div class="round-status">
+
+                    <div class="status-item">
+
+                        <span class="status-label">
+                            APOSTA
+                        </span>
+
+                        <strong id="current-bet">
+                            0 ◆
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-item highlight">
+
+                        <span class="status-label">
+                            PRÊMIO ATUAL
+                        </span>
+
+                        <strong id="current-prize">
+                            0 ◆
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-item">
+
+                        <span class="status-label">
+                            MULTIPLICADOR
+                        </span>
+
+                        <strong id="current-multiplier">
+                            x1.00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     ÁREA DAS CARTAS
+                     ================================================= -->
+
+                <div class="cards-area">
+
+
+                    <!-- CARTA ATUAL -->
+
+                    <div class="card-container">
+
+                        <span class="card-label">
+                            CARTA ATUAL
+                        </span>
+
+                        <div
+                            id="current-card"
+                            class="playing-card"
+                        >
+
+                            <div
+                                class="card-corner top"
+                            >
+
+                                <span
+                                    class="card-rank"
+                                >
+                                    7
+                                </span>
+
+                                <span
+                                    class="card-suit"
+                                >
+                                    ♦
+                                </span>
+
+                            </div>
+
+
+                            <div
+                                id="current-card-center"
+                                class="card-center"
+                            >
+                                ♦
+                            </div>
+
+
+                            <div
+                                class="card-corner bottom"
+                            >
+
+                                <span
+                                    class="card-rank"
+                                >
+                                    7
+                                </span>
+
+                                <span
+                                    class="card-suit"
+                                >
+                                    ♦
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="versus">
+                        VS
+                    </div>
+
+
+
+                    <!-- PRÓXIMA CARTA -->
+
+                    <div class="card-container">
+
+                        <span class="card-label">
+                            PRÓXIMA CARTA
+                        </span>
+
+                        <div
+                            id="next-card"
+                            class="playing-card hidden-card"
+                        >
+
+                            <span>
+                                ?
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     MENSAGEM
+                     ================================================= -->
+
+                <div
+                    id="result-message"
+                    class="result-message"
+                >
+                    FAÇA SUA APOSTA E ESCOLHA!
+                </div>
+
+
+
+                <!-- =================================================
+                     APOSTA
+                     ================================================= -->
+
+                <div
+                    id="bet-area"
+                    class="bet-area"
+                >
+
+                    <div class="bet-title">
+                        VALOR DA APOSTA
+                    </div>
+
+
+                    <div class="bet-input-wrapper">
+
+                        <input
+                            type="number"
+                            id="bet-input"
+                            min="1"
+                            step="1"
+                            value="25"
+                            placeholder="Digite sua aposta"
+                        >
+
+                        <span>
+                            ◆
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        id="max-bet-button"
+                        class="secondary-button"
+                    >
+                        APOSTAR TUDO
+                    </button>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     ESCOLHAS
+                     ================================================= -->
+
+                <div class="choice-area">
+
+                    <button
+                        id="lower-button"
+                        class="choice-button lower"
+                    >
+
+                        <span class="choice-arrow">
+                            ↓
+                        </span>
+
+                        <span>
+                            MENOR
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        id="higher-button"
+                        class="choice-button higher"
+                    >
+
+                        <span class="choice-arrow">
+                            ↑
+                        </span>
+
+                        <span>
+                            MAIOR
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     PEGAR PRÊMIO
+                     ================================================= -->
+
+                <button
+                    id="cashout-button"
+                    class="cashout-button"
+                    disabled
+                >
+                    PEGAR PRÊMIO
+                </button>
+
+
+
+                <!-- =================================================
+                     INFORMAÇÕES
+                     ================================================= -->
+
+                <div class="round-info">
+
+                    <span>
+                        Acerte para aumentar o prêmio.
+                    </span>
+
+                    <span id="streak-info">
+                        Sequência: 0
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 TABELA
+                 ================================================= -->
+
+            <div class="paytable">
+
+                <div class="paytable-title">
+                    MULTIPLICADORES
+                </div>
+
+
+                <div class="paytable-grid">
+
+                    <div class="paytable-item">
+                        <span>
+                            1 acerto
+                        </span>
+
+                        <strong>
+                            x1.00
+                        </strong>
+                    </div>
+
+
+                    <div class="paytable-item">
+                        <span>
+                            2 acertos
+                        </span>
+
+                        <strong>
+                            x1.50
+                        </strong>
+                    </div>
+
+
+                    <div class="paytable-item">
+                        <span>
+                            3 acertos
+                        </span>
+
+                        <strong>
+                            x2.00
+                        </strong>
+                    </div>
+
+
+                    <div class="paytable-item">
+                        <span>
+                            4 acertos
+                        </span>
+
+                        <strong>
+                            x3.00
+                        </strong>
+                    </div>
+
+
+                    <div class="paytable-item">
+                        <span>
+                            5 acertos
+                        </span>
+
+                        <strong>
+                            x5.00
+                        </strong>
+                    </div>
+
+
+                    <div class="paytable-item jackpot-row">
+                        <span>
+                            6 acertos
+                        </span>
+
+                        <strong>
+                            x8.00
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <script src="higherlower.js"></script>
+
+</body>
+
+</html>

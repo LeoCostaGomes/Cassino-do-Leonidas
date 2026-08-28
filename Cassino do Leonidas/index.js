@@ -46,14 +46,16 @@ const jogos = [
     {
         id: "jogo-3",
 
-        nome: "Jogo 3",
+        nome: "Higher or Lower",
 
-        descricao: "Descrição do terceiro jogo.",
+        descricao: "Adivinhe se a próxima carta será maior ou menor e aumente seu prêmio.",
 
-        imagem: "imagens/jogo3.png",
+        imagem: "imagens/higherlower.png",
 
-        pagina: "jogo3.html"
-    }
+        pagina: "higherlower.html",
+
+        multiplicador: "x12"
+    },
 
 ];
 

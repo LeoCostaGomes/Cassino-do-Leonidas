@@ -221,15 +221,15 @@ const LINHAS =
 
 const multiplicadores = [
 
-    0.2,
-    0.5,
-    0.7,
+    0.3,
+    0.6,
     1,
+    1.5,
     5,
+    1.5,
     1,
-    0.7,
-    0.5,
-    0.2
+    0.6,
+    0.3
 
 ];
 
@@ -513,15 +513,15 @@ function gerarCaminho() {
 
     const pesos = [
 
-        15, // 0.2x
-        14, // 0.5x
+        14, // 0.2x
+        13, // 0.5x
         12, // 0.7x
         8,  // 1x
-        2,  // 5x
+        4,  // 5x
         8,  // 1x
         12, // 0.7x
-        14, // 0.5x
-        15  // 0.2x
+        13, // 0.5x
+        14  // 0.2x
 
     ];
 
@@ -1004,7 +1004,7 @@ async function soltarBola() {
             function () {
 
                 window.location.href =
-                    "../index.html?falido=1";
+                    "index.html?falido=1";
 
             },
             900
