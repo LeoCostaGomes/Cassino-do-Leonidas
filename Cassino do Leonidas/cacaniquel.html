@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Caça-níquel da Fortuna - Cassino do Leônidas</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="cacaniquel.css">
+</head>
+
+<body>
+
+    <header class="top-bar">
+
+        <button class="back-button" onclick="window.location.href='../index.html'">
+            ← VOLTAR
+        </button>
+
+        <div class="logo">
+            <span class="logo-main">CASSINO</span>
+            <span class="logo-sub">DO LEÔNIDAS</span>
+        </div>
+
+        <div class="gold-balance">
+            <div class="gold-icon">◆</div>
+
+            <div class="gold-info">
+                <span class="gold-label">PEPITAS</span>
+                <span id="gold-amount">0</span>
+            </div>
+        </div>
+
+    </header>
+
+    <main class="game-page">
+
+        <section class="slot-machine">
+
+            <div class="game-heading">
+                <span class="eyebrow">JOGO 1</span>
+                <h1>CAÇA-NÍQUEL DA FORTUNA</h1>
+                <div class="gold-line"></div>
+                <p>Gire os rolos e encontre a combinação da fortuna.</p>
+            </div>
+
+            <div class="machine">
+
+                <div class="machine-top">
+                    <span>★</span>
+                    <strong>FORTUNA</strong>
+                    <span>★</span>
+                </div>
+
+                <div class="paytable">
+
+                    <div class="paytable-title">TABELA DE PRÊMIOS</div>
+
+                    <div class="paytable-row">
+                        <span>7 7 7</span>
+                        <strong>x20</strong>
+                    </div>
+
+                    <div class="paytable-row">
+                        <span>◆ ◆ ◆</span>
+                        <strong>x10</strong>
+                    </div>
+
+                    <div class="paytable-row">
+                        <span>🍀 🍀 🍀</span>
+                        <strong>x7</strong>
+                    </div>
+
+                    <div class="paytable-row">
+                        <span>🍒 🍒 🍒</span>
+                        <strong>x5</strong>
+                    </div>
+
+                    <div class="paytable-row">
+                        <span>3 símbolos iguais</span>
+                        <strong>x3</strong>
+                    </div>
+
+                    <div class="paytable-row">
+                        <span>2 símbolos iguais</span>
+                        <strong>x1.5</strong>
+                    </div>
+
+                </div>
+
+                <div class="reels-frame">
+
+                    <div class="reels">
+
+                        <div class="reel" id="reel-1">
+                            <div class="symbol">7</div>
+                        </div>
+
+                        <div class="reel" id="reel-2">
+                            <div class="symbol">◆</div>
+                        </div>
+
+                        <div class="reel" id="reel-3">
+                            <div class="symbol">🍀</div>
+                        </div>
+
+                    </div>
+
+                    <div class="payline"></div>
+
+                </div>
+
+                <div class="result-message" id="result-message">
+                    ESCOLHA SUA APOSTA E GIRE!
+                </div>
+
+                <div class="bet-area">
+
+                    <div class="bet-title">VALOR DA APOSTA</div>
+
+                    <div class="bet-input-area">
+
+                        <label for="bet-input">
+                            VALOR DA APOSTA
+                        </label>
+
+                        <div class="bet-input-wrapper">
+
+                            <input type="number" id="bet-input" min="1" step="1" value="25"
+                                placeholder="Digite sua aposta">
+
+                            <span>◆</span>
+
+                        </div>
+
+                        <button class="max-bet-button" id="max-bet-button">
+                            APOSTAR TUDO
+                        </button>
+
+                    </div>
+
+
+                    <div class="selected-bet">
+                        APOSTA:
+                        <strong id="selected-bet">25 ◆</strong>
+                    </div>
+
+                </div>
+
+                <button class="spin-button" id="spin-button">
+                    GIRAR
+                </button>
+
+                <div class="round-info">
+                    <span>Multiplicador máximo: x20</span>
+                    <span id="last-win">Último prêmio: 0 ◆</span>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="cacaniquel.js"></script>
+
+</body>
+
+</html>

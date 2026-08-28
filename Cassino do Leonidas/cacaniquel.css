@@ -1,0 +1,1336 @@
+/* =========================================================
+   CONFIGURAÇÕES GERAIS
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+:root {
+
+    --black: #000000;
+
+    --dark: #0B0B0B;
+
+    --dark-card: #161616;
+
+    --gold: #D4AF37;
+
+    --gold-bright: #FFD700;
+
+    --gold-dark: #8F7420;
+
+    --white: #F5F5F5;
+
+    --gray: #A0A0A0;
+
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+body {
+
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #292929 0%,
+            #0B0B0B 40%,
+            #000000 100%
+        );
+
+    color: var(--white);
+
+    font-family:
+        "Montserrat",
+        sans-serif;
+
+}
+
+
+/* =========================================================
+   CABEÇALHO
+   ========================================================= */
+
+.top-bar {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    z-index: 1000;
+
+    width: 100%;
+
+    height: 85px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 40px;
+
+    background:
+        rgba(0, 0, 0, 0.96);
+
+    border-bottom:
+        1px solid rgba(
+            212,
+            175,
+            55,
+            0.4
+        );
+
+    box-shadow:
+        0 3px 20px
+        rgba(0, 0, 0, 0.8),
+
+        0 1px 10px
+        rgba(212, 175, 55, 0.08);
+
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.logo {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    line-height: 1;
+
+    text-align: center;
+
+}
+
+
+.logo-main {
+
+    font-family:
+        "Cinzel",
+        serif;
+
+    font-size: 36px;
+
+    font-weight: 800;
+
+    letter-spacing: 5px;
+
+    color:
+        var(--gold-bright);
+
+    text-shadow:
+
+        0 0 6px
+        rgba(255, 215, 0, 0.5),
+
+        0 0 18px
+        rgba(212, 175, 55, 0.3);
+
+}
+
+
+.logo-sub {
+
+    margin-top: 5px;
+
+    font-family:
+        "Cinzel",
+        serif;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    letter-spacing: 5px;
+
+    color:
+        var(--gold);
+
+}
+
+
+/* =========================================================
+   BOTÃO VOLTAR
+   ========================================================= */
+
+.back-button {
+
+    padding:
+        10px 18px;
+
+    border:
+        1px solid
+        var(--gold-dark);
+
+    border-radius: 5px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #171717,
+            #0B0B0B
+        );
+
+    color:
+        var(--gold);
+
+    font-family:
+        "Montserrat",
+        sans-serif;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    cursor: pointer;
+
+    transition:
+        0.2s ease;
+
+}
+
+
+.back-button:hover {
+
+    color:
+        var(--gold-bright);
+
+    border-color:
+        var(--gold);
+
+    transform:
+        translateX(-2px);
+
+}
+
+
+/* =========================================================
+   SALDO DE PEPITAS
+   ========================================================= */
+
+.gold-balance {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding:
+        9px 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #171717,
+            #0A0A0A
+        );
+
+    border:
+        1px solid
+        var(--gold-dark);
+
+    border-radius: 8px;
+
+    box-shadow:
+        inset 0 0 10px
+        rgba(212, 175, 55, 0.04),
+
+        0 0 12px
+        rgba(212, 175, 55, 0.08);
+
+}
+
+
+.gold-icon {
+
+    width: 35px;
+
+    height: 35px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 23px;
+
+    color:
+        var(--gold-bright);
+
+    text-shadow:
+        0 0 8px
+        rgba(255, 215, 0, 0.6);
+
+}
+
+
+.gold-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.gold-label {
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    color:
+        var(--gray);
+
+}
+
+
+#gold-amount {
+
+    font-family:
+        "Cinzel",
+        serif;
+
+    font-size: 19px;
+
+    font-weight: 700;
+
+    color:
+        var(--gold-bright);
+
+}
+
+
+/* =========================================================
+   PÁGINA DO JOGO
+   ========================================================= */
+
+.game-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    padding:
+        140px 20px 70px;
+
+}
+
+
+/* =========================================================
+   ÁREA PRINCIPAL DO JOGO
+   ========================================================= */
+
+.slot-machine {
+
+    width: 100%;
+
+    max-width: 720px;
+
+}
+
+
+/* =========================================================
+   CABEÇALHO DO JOGO
+   ========================================================= */
+
+.game-heading {
+
+    text-align: center;
+
+}
+
+
+.eyebrow {
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+    color:
+        var(--gray);
+
+}
+
+
+.game-heading h1 {
+
+    margin-top: 8px;
+
+    font-family:
+        "Cinzel",
+        serif;
+
+    font-size: 34px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    color:
+        var(--gold-bright);
+
+    text-shadow:
+        0 0 12px
+        rgba(255, 215, 0, 0.2);
+
+}
+
+
+/* =========================================================
+   LINHA DOURADA
+   ========================================================= */
+
+.gold-line {
+
+    width: 220px;
+
+    height: 2px;
+
+    margin:
+        18px auto;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--gold),
+            var(--gold-bright),
+            var(--gold),
+            transparent
+        );
+
+    box-shadow:
+        0 0 8px
+        rgba(255, 215, 0, 0.35);
+
+}
+
+
+.game-heading p {
+
+    color:
+        var(--gray);
+
+    font-size: 13px;
+
+    margin-bottom: 30px;
+
+}
+
+
+/* =========================================================
+   MÁQUINA
+   ========================================================= */
+
+.machine {
+
+    position: relative;
+
+    padding: 25px;
+
+    border:
+        2px solid
+        var(--gold-dark);
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #242424,
+            #0A0A0A 70%
+        );
+
+    box-shadow:
+
+        0 18px 50px
+        rgba(0, 0, 0, 0.75),
+
+        inset 0 0 35px
+        rgba(212, 175, 55, 0.04);
+
+}
+
+
+.machine::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 7px;
+
+    border:
+        1px solid
+        rgba(212, 175, 55, 0.22);
+
+    border-radius: 11px;
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================================
+   TÍTULO FORTUNA
+   ========================================================= */
+
+.machine-top {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 20px;
+
+    font-family:
+        "Cinzel",
+        serif;
+
+    font-size: 22px;
+
+    color:
+        var(--gold-bright);
+
+    letter-spacing: 4px;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* =========================================================
+   TABELA DE PRÊMIOS
+   ========================================================= */
+
+.paytable {
+
+    position: relative;
+
+    z-index: 1;
+
+    padding:
+        14px 18px;
+
+    margin-bottom: 20px;
+
+    border:
+        1px solid
+        rgba(212, 175, 55, 0.4);
+
+    border-radius: 8px;
+
+    background:
+        rgba(0, 0, 0, 0.45);
+
+}
+
+
+.paytable-title {
+
+    text-align: center;
+
+    margin-bottom: 10px;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    color:
+        var(--gold);
+
+}
+
+
+.paytable-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 5px 0;
+
+    font-size: 11px;
+
+    color:
+        var(--gray);
+
+}
+
+
+.paytable-row strong {
+
+    color:
+        var(--gold-bright);
+
+}
+
+
+/* =========================================================
+   MOLDURA DOS ROLOS
+   ========================================================= */
+
+.reels-frame {
+
+    position: relative;
+
+    z-index: 1;
+
+    padding: 18px;
+
+    border:
+        1px solid
+        #4D3D12;
+
+    border-radius: 10px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #333333 0%,
+            #141414 75%
+        );
+
+    box-shadow:
+
+        inset 0 0 20px
+        rgba(0, 0, 0, 0.8),
+
+        0 0 15px
+        rgba(212, 175, 55, 0.07);
+
+}
+
+
+/* =========================================================
+   ROLOS
+   ========================================================= */
+
+.reels {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 14px;
+
+}
+
+
+.reel {
+
+    height: 150px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    border:
+        3px solid
+        #9B8122;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #F5F5F5,
+            #CFCFCF
+        );
+
+    box-shadow:
+
+        inset 0 0 20px
+        rgba(0, 0, 0, 0.35),
+
+        0 4px 12px
+        rgba(0, 0, 0, 0.6);
+
+}
+
+
+.symbol {
+
+    font-family:
+        "Cinzel",
+        serif;
+
+    font-size: 66px;
+
+    font-weight: 800;
+
+    color:
+        #1A1A1A;
+
+    text-shadow:
+
+        0 2px 0
+        #FFFFFF,
+
+        0 -1px 0
+        rgba(0, 0, 0, 0.12);
+
+    user-select: none;
+
+}
+
+
+/* =========================================================
+   LINHA DE PAGAMENTO
+   ========================================================= */
+
+.payline {
+
+    position: absolute;
+
+    left: 7px;
+
+    right: 7px;
+
+    top: 50%;
+
+    height: 3px;
+
+    transform:
+        translateY(-50%);
+
+    background:
+        rgba(212, 175, 55, 0.75);
+
+    box-shadow:
+        0 0 9px
+        rgba(255, 215, 0, 0.45);
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================================
+   MENSAGEM
+   ========================================================= */
+
+.result-message {
+
+    position: relative;
+
+    z-index: 1;
+
+    min-height: 25px;
+
+    margin:
+        20px 0;
+
+    text-align: center;
+
+    font-family:
+        "Cinzel",
+        serif;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    color:
+        var(--gold-bright);
+
+}
+
+
+.result-message.win {
+
+    animation:
+        resultPulse
+        0.55s ease;
+
+}
+
+
+.result-message.loss {
+
+    color:
+        #B6B6B6;
+
+}
+
+
+.result-message.jackpot {
+
+    color:
+        var(--gold-bright);
+
+    text-shadow:
+
+        0 0 8px
+        rgba(255, 215, 0, 0.8),
+
+        0 0 22px
+        rgba(255, 215, 0, 0.5);
+
+    animation:
+        resultPulse
+        0.55s ease;
+
+}
+
+
+/* =========================================================
+   ÁREA DA APOSTA
+   ========================================================= */
+
+.bet-input-area {
+
+    position: relative;
+
+    z-index: 1;
+
+    margin-top: 8px;
+
+    text-align: center;
+
+}
+
+
+.bet-input-area label {
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    color:
+        var(--gray);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+}
+
+
+/* =========================================================
+   CAMPO DE APOSTA
+   ========================================================= */
+
+.bet-input-wrapper {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 100%;
+
+    max-width: 280px;
+
+    margin:
+        auto;
+
+    border:
+        1px solid
+        var(--gold-dark);
+
+    border-radius: 5px;
+
+    background:
+        #101010;
+
+    overflow: hidden;
+
+}
+
+
+.bet-input-wrapper input {
+
+    width: 100%;
+
+    padding:
+        12px;
+
+    border: none;
+
+    outline: none;
+
+    background:
+        transparent;
+
+    color:
+        var(--gold-bright);
+
+    font-family:
+        "Montserrat",
+        sans-serif;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    text-align: center;
+
+}
+
+
+.bet-input-wrapper span {
+
+    padding-right: 15px;
+
+    color:
+        var(--gold-bright);
+
+    font-size: 18px;
+
+    font-weight: 800;
+
+}
+
+
+/* =========================================================
+   REMOVER SETAS DO INPUT
+   ========================================================= */
+
+.bet-input-wrapper
+input::-webkit-outer-spin-button,
+
+.bet-input-wrapper
+input::-webkit-inner-spin-button {
+
+    -webkit-appearance: none;
+
+    margin: 0;
+
+}
+
+
+.bet-input-wrapper
+input[type=number] {
+
+    -moz-appearance:
+        textfield;
+
+}
+
+
+/* =========================================================
+   BOTÃO APOSTAR TUDO
+   ========================================================= */
+
+.max-bet-button {
+
+    margin-top: 10px;
+
+    padding:
+        8px 18px;
+
+    border:
+        1px solid
+        var(--gold-dark);
+
+    border-radius: 4px;
+
+    background:
+        #101010;
+
+    color:
+        var(--gold);
+
+    font-family:
+        "Montserrat",
+        sans-serif;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    cursor: pointer;
+
+    transition:
+        0.2s ease;
+
+}
+
+
+.max-bet-button:hover:not(:disabled) {
+
+    border-color:
+        var(--gold);
+
+    color:
+        var(--gold-bright);
+
+}
+
+
+.max-bet-button:disabled {
+
+    cursor:
+        not-allowed;
+
+    opacity:
+        0.5;
+
+}
+
+
+/* =========================================================
+   BOTÃO GIRAR
+   ========================================================= */
+
+.spin-button {
+
+    position: relative;
+
+    z-index: 1;
+
+    display: block;
+
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding:
+        16px;
+
+    border:
+        1px solid
+        var(--gold-bright);
+
+    border-radius: 7px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #FFD700,
+            #B18D1E
+        );
+
+    color:
+        #000000;
+
+    font-family:
+        "Cinzel",
+        serif;
+
+    font-size: 18px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 18px
+        rgba(255, 215, 0, 0.2);
+
+    transition:
+        0.2s ease;
+
+}
+
+
+.spin-button:hover:not(:disabled) {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 24px
+        rgba(255, 215, 0, 0.35);
+
+}
+
+
+.spin-button:active:not(:disabled) {
+
+    transform:
+        translateY(0);
+
+}
+
+
+.spin-button:disabled {
+
+    cursor:
+        not-allowed;
+
+    opacity:
+        0.5;
+
+}
+
+
+/* =========================================================
+   INFORMAÇÕES DO GIRO
+   ========================================================= */
+
+.round-info {
+
+    position: relative;
+
+    z-index: 1;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-top: 15px;
+
+    color:
+        #777777;
+
+    font-size: 10px;
+
+}
+
+
+/* =========================================================
+   ANIMAÇÃO DE RESULTADO
+   ========================================================= */
+
+@keyframes resultPulse {
+
+    0% {
+
+        transform:
+            scale(1);
+
+    }
+
+
+    50% {
+
+        transform:
+            scale(1.06);
+
+    }
+
+
+    100% {
+
+        transform:
+            scale(1);
+
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+    .top-bar {
+
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        height: 110px;
+
+        padding:
+            15px 20px;
+
+        align-items:
+            flex-end;
+
+    }
+
+
+    .logo {
+
+        top: 33px;
+
+    }
+
+
+    .logo-main {
+
+        font-size: 25px;
+
+        letter-spacing: 4px;
+
+    }
+
+
+    .logo-sub {
+
+        font-size: 9px;
+
+        letter-spacing: 3px;
+
+    }
+
+
+    .gold-balance {
+
+        padding:
+            7px 12px;
+
+    }
+
+
+    .game-page {
+
+        min-height: 100vh;
+
+        padding:
+            150px 15px 60px;
+
+    }
+
+
+    .game-heading h1 {
+
+        font-size: 25px;
+
+    }
+
+
+    .machine {
+
+        padding:
+            15px;
+
+    }
+
+
+    .machine-top {
+
+        font-size: 18px;
+
+        gap: 10px;
+
+    }
+
+
+    .reels {
+
+        gap: 8px;
+
+    }
+
+
+    .reel {
+
+        height: 115px;
+
+    }
+
+
+    .symbol {
+
+        font-size: 48px;
+
+    }
+
+
+    .round-info {
+
+        flex-direction:
+            column;
+
+        text-align:
+            center;
+
+    }
+
+}
+
+
+/* =========================================================
+   TELAS MUITO PEQUENAS
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+    .game-heading h1 {
+
+        font-size: 22px;
+
+        letter-spacing: 1px;
+
+    }
+
+
+    .reel {
+
+        height: 95px;
+
+    }
+
+
+    .symbol {
+
+        font-size: 39px;
+
+    }
+
+
+    .paytable-row {
+
+        font-size: 10px;
+
+    }
+
+}

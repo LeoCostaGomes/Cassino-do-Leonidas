@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Plinko da Fortuna - Cassino do Leônidas</title>
+
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="pliko.css">
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         CABEÇALHO
+         ===================================================== -->
+
+    <header class="top-bar">
+
+        <button class="back-button" onclick="window.location.href='../index.html'">
+            ← VOLTAR
+        </button>
+
+
+        <div class="logo">
+
+            <span class="logo-main">
+                CASSINO
+            </span>
+
+            <span class="logo-sub">
+                DO LEÔNIDAS
+            </span>
+
+        </div>
+
+
+        <div class="gold-balance">
+
+            <div class="gold-icon">
+                ◆
+            </div>
+
+            <div class="gold-info">
+
+                <span class="gold-label">
+                    PEPITAS
+                </span>
+
+                <span id="gold-amount">
+                    0
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         PÁGINA DO JOGO
+         ===================================================== -->
+
+    <main class="game-page">
+
+        <section class="plinko-section">
+
+
+            <!-- =================================================
+                 CABEÇALHO DO JOGO
+                 ================================================= -->
+
+            <div class="game-heading">
+
+                <span class="eyebrow">
+                    JOGO 2
+                </span>
+
+                <h1>
+                    PLINKO DA FORTUNA
+                </h1>
+
+                <div class="gold-line"></div>
+
+                <p>
+                    Solte a bola e descubra onde a fortuna vai parar.
+                </p>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 ÁREA PRINCIPAL
+                 ================================================= -->
+
+            <div class="game-layout">
+
+
+                <!-- =================================================
+                     PLINKO
+                     ================================================= -->
+
+                <div class="plinko-machine">
+
+                    <div class="machine-top">
+
+                        <span>★</span>
+
+                        <strong>
+                            PLINKO
+                        </strong>
+
+                        <span>★</span>
+
+                    </div>
+
+
+                    <!-- TABULEIRO -->
+
+                    <div class="board-frame">
+
+                        <div id="plinko-board" class="plinko-board">
+
+                            <!--
+                                Os pinos são criados
+                                automaticamente pelo JS.
+                            -->
+
+                        </div>
+
+
+                        <div id="plinko-ball" class="plinko-ball"></div>
+
+                    </div>
+
+
+                    <!-- CAIXAS DE PRÊMIO -->
+
+                    <div id="multiplier-board" class="multiplier-board">
+
+                        <div class="multiplier normal">
+                            0.2x
+                        </div>
+
+                        <div class="multiplier normal">
+                            0.5x
+                        </div>
+
+                        <div class="multiplier normal">
+                            0.7x
+                        </div>
+
+                        <div class="multiplier good">
+                            1x
+                        </div>
+
+                        <div class="multiplier jackpot">
+                            5x
+                        </div>
+
+                        <div class="multiplier good">
+                            1x
+                        </div>
+
+                        <div class="multiplier normal">
+                            0.7x
+                        </div>
+
+                        <div class="multiplier normal">
+                            0.5x
+                        </div>
+
+                        <div class="multiplier normal">
+                            0.2x
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- MENSAGEM -->
+
+                    <div id="result-message" class="result-message">
+                        ESCOLHA SUA APOSTA E SOLTE A BOLA!
+                    </div>
+
+
+
+                    <!-- =================================================
+                         APOSTA
+                         ================================================= -->
+
+                    <div class="bet-area">
+
+                        <div class="bet-title">
+                            VALOR DA APOSTA
+                        </div>
+
+
+                        <div class="bet-input-area">
+
+                            <label for="bet-input">
+                                VALOR DA APOSTA
+                            </label>
+
+
+                            <div class="bet-input-wrapper">
+
+                                <input type="number" id="bet-input" min="1" step="1" value="25"
+                                    placeholder="Digite sua aposta">
+
+                                <span>
+                                    ◆
+                                </span>
+
+                            </div>
+
+
+                            <button class="max-bet-button" id="max-bet-button">
+                                APOSTAR TUDO
+                            </button>
+
+                        </div>
+
+
+                        <div class="selected-bet">
+
+                            APOSTA:
+
+                            <strong id="selected-bet">
+                                25 ◆
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         BOTÃO
+                         ================================================= -->
+
+                    <button class="drop-button" id="drop-button">
+                        SOLTAR BOLA
+                    </button>
+
+
+
+                    <!-- =================================================
+                         INFORMAÇÕES
+                         ================================================= -->
+
+                    <div class="round-info">
+
+                        <span>
+                            Prêmio máximo: x10
+                        </span>
+
+                        <span id="last-win">
+                            Último prêmio: 0 ◆
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     TABELA DE PRÊMIOS
+                     ================================================= -->
+
+                <div class="paytable">
+
+                    <div class="paytable-title">
+                        TABELA DE PRÊMIOS
+                    </div>
+
+
+                    <div class="paytable-row">
+
+                        <span>
+                            ◆ 10x ◆
+                        </span>
+
+                        <strong>
+                            JACKPOT
+                        </strong>
+
+                    </div>
+
+
+                    <div class="paytable-row">
+
+                        <span>
+                            ◆ 5x ◆
+                        </span>
+
+                        <strong>
+                            GRANDE
+                        </strong>
+
+                    </div>
+
+
+                    <div class="paytable-row">
+
+                        <span>
+                            ◆ 2x ◆
+                        </span>
+
+                        <strong>
+                            BOM
+                        </strong>
+
+                    </div>
+
+
+                    <div class="paytable-row">
+
+                        <span>
+                            ◆ 1x ◆
+                        </span>
+
+                        <strong>
+                            NORMAL
+                        </strong>
+
+                    </div>
+
+
+                    <div class="paytable-row">
+
+                        <span>
+                            ◆ 0.5x ◆
+                        </span>
+
+                        <strong>
+                            METADE
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- JS -->
+
+    <script src="pliko.js"></script>
+
+</body>
+
+</html>

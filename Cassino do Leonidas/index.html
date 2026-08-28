@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cassino do Leônidas</title>
+
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Montserrat:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Cabeçalho -->
+    <header class="top-bar">
+
+        <!-- Logo -->
+        <div class="logo">
+            <span class="logo-main">CASSINO</span>
+            <span class="logo-sub">DO LEÔNIDAS</span>
+        </div>
+
+        <!-- Saldo -->
+        <div class="gold-balance">
+
+            <div class="gold-icon">
+                ◆
+            </div>
+
+            <div class="gold-info">
+                <span class="gold-label">PEPITAS</span>
+                <span id="gold-amount">1000</span>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+
+        <section class="games-section">
+
+            <h1>ESCOLHA SEU JOGO</h1>
+
+            <div class="gold-line"></div>
+
+            <!-- Lista de jogos -->
+            <div class="games-container"></div>
+
+            <div class="shop-button-container">
+                <button class="shop-button" onclick="window.location.href='loja.html'">
+                    LOJA DE COLECIONÁVEIS
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <div
+    id="bankrupt-overlay"
+    class="bankrupt-overlay"
+>
+
+    <div class="bankrupt-box">
+
+        <div class="bankrupt-title">
+            Você Faliu!
+        </div>
+
+        <button
+            id="restart-game-button"
+            class="restart-game-button"
+        >
+            RECOMEÇAR JOGO
+        </button>
+
+    </div>
+
+</div>
+
+    <script src="index.js"></script>
+</body>
+
+</html>
