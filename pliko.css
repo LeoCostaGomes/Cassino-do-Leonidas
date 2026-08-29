@@ -542,10 +542,16 @@ body {
 
     width: 100%;
 
-    height: 430px;
+    /*
+        Altura responsiva.
 
-    padding:
-        15px 25px;
+        A altura visual será definida pelo stage,
+        que possui tamanho fixo.
+    */
+
+    height: min(430px, 70vw);
+
+    min-height: 280px;
 
     overflow: hidden;
 
@@ -575,6 +581,42 @@ body {
 
 
 /* =========================================================
+   TABULEIRO FÍSICO FIXO
+   ========================================================= */
+
+.plinko-stage {
+
+    /*
+        TAMANHO LÓGICO DO PLINKO.
+
+        Estes valores NÃO mudam.
+
+        Todo o jogo usa estas coordenadas.
+    */
+
+    position: absolute;
+
+    width: 640px;
+
+    height: 430px;
+
+    left: 50%;
+
+    top: 50%;
+
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
+
+    transform-origin:
+        center center;
+
+}
+
+
+/* =========================================================
    PLINKO BOARD
    ========================================================= */
 
@@ -583,10 +625,12 @@ body {
     position: absolute;
 
     top: 0;
+
     left: 0;
 
-    width: 100%;
-    height: 100%;
+    width: 640px;
+
+    height: 430px;
 
 }
 
@@ -651,9 +695,9 @@ body {
 
     border-radius: 50%;
 
-    left: 50%;
+    left: 0;
 
-    top: -30px;
+    top: 0;
 
     transform:
         translate(
@@ -681,7 +725,143 @@ body {
         0 4px 8px
         rgba(0, 0, 0, 0.5);
 
-    opacity: 0;
+    opacity:
+        0;
+
+    pointer-events:
+        none;
+
+}
+
+
+/* =========================================================
+   MARCADOR
+   ========================================================= */
+
+.drop-marker {
+
+    position: absolute;
+
+    z-index: 8;
+
+    top: 0;
+
+    width: 3px;
+
+    height: 100%;
+
+    transform:
+        translateX(-50%);
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            var(--gold-bright),
+            rgba(255, 215, 0, 0.15)
+        );
+
+    box-shadow:
+        0 0 8px
+        rgba(255, 215, 0, 0.55);
+
+    pointer-events:
+        none;
+
+    transition:
+        left 0.12s ease,
+        opacity 0.2s ease;
+
+}
+
+
+.drop-marker::before {
+
+    content:
+        "▼";
+
+    position:
+        absolute;
+
+    top:
+        5px;
+
+    left:
+        50%;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        var(--gold-bright);
+
+    font-size:
+        15px;
+
+    text-shadow:
+        0 0 8px
+        rgba(255, 215, 0, 0.8);
+
+}
+
+
+/* =========================================================
+   TABULEIRO DURANTE A QUEDA
+   ========================================================= */
+
+.board-frame.ball-dropping {
+
+    cursor:
+        default;
+
+}
+
+
+.board-frame.ball-dropping .drop-marker {
+
+    opacity:
+        0 !important;
+
+}
+
+
+/* =========================================================
+   CURSOR
+   ========================================================= */
+
+.board-frame {
+
+    cursor:
+        crosshair;
+
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+    .board-frame {
+
+        /*
+            Mantém uma proporção equivalente ao
+            tabuleiro lógico.
+
+            640 x 430
+        */
+
+        height:
+            min(
+                430px,
+                calc(100vw * 0.671875)
+            );
+
+        min-height:
+            250px;
+
+    }
 
 }
 

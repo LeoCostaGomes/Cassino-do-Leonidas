@@ -37,100 +37,163 @@ const plinkoBall =
 const boardFrame =
     document.querySelector(".board-frame");
 
+const plinkoStage =
+    document.getElementById("plinko-stage");
+
 const multiplierElements =
     document.querySelectorAll(".multiplier");
 
 
 /* =========================================================
-   CONFIGURAÇÕES DE FÍSICA
+   TAMANHO LÓGICO DO TABULEIRO
+   ========================================================= */
+
+/*
+    O tabuleiro possui sempre estas dimensões
+    internamente.
+
+    Em celulares ele apenas é visualmente
+    reduzido.
+
+    A física nunca depende do tamanho da tela.
+*/
+
+const BOARD_WIDTH =
+    640;
+
+const BOARD_HEIGHT =
+    430;
+
+
+/* =========================================================
+   CONFIGURAÇÃO DO TABULEIRO
+   ========================================================= */
+
+const LINHAS =
+    10;
+
+
+/*
+    Quantidade de pinos.
+
+    Usamos uma quantidade alta para que
+    os pinos ocupem praticamente toda
+    a largura do tabuleiro.
+
+    Alternamos 14 / 13 para formar
+    o padrão intercalado.
+*/
+
+const PINOS_FILEIRA_A =
+    14;
+
+const PINOS_FILEIRA_B =
+    13;
+
+
+/*
+    Distância fixa entre os pinos.
+
+    Essa distância NUNCA muda com a
+    resolução da tela.
+*/
+
+const ESPACAMENTO_X =
+    46;
+
+
+/*
+    Espaçamento vertical.
+*/
+
+const ESPACAMENTO_Y =
+    38;
+
+
+/*
+    Primeiro pino.
+*/
+
+const PRIMEIRO_Y =
+    35;
+
+
+/* =========================================================
+   CONFIGURAÇÕES DA FÍSICA
    ========================================================= */
 
 /*
     GRAVIDADE
-
-    Quanto maior:
-        → a bola cai mais rápido
-        → as colisões acontecem em maior velocidade
-
-    Quanto menor:
-        → queda mais lenta
-        → movimento mais "flutuante"
 */
 
 const GRAVIDADE =
-    1050;
+    1080;
 
 
 /*
-    VELOCIDADE INICIAL
-
-    Pequena velocidade vertical inicial para
-    a bola começar a cair suavemente.
+    Velocidade vertical inicial.
 */
 
 const VELOCIDADE_INICIAL_Y =
-    60;
+    70;
 
 
 /*
-    PEQUENA VARIAÇÃO HORIZONTAL INICIAL.
+    Pequena variação horizontal no lançamento.
 
-    Isso impede que a bola fique completamente
-    previsível quando lançada exatamente no centro.
+    Mantida baixa para que a posição escolhida
+    pelo jogador continue sendo importante.
 */
 
 const VARIACAO_INICIAL_X =
-    35;
+    18;
 
-
+const MARGEM_LANCAMENTO = 70;
 /*
-    RESTITUIÇÃO.
+    Força do quique.
 
-    Define quanto da velocidade é mantida
-    depois de bater em um pino.
-
+    0.0 = sem quique
     1.0 = quique muito forte
-    0.0 = praticamente sem quique
-
-    0.6 ~ 0.7 costuma ficar bom.
 */
 
 const RESTITUICAO =
-    0.68;
+    0.64;
 
 
 /*
-    ATRITO.
-
-    Reduz um pouco a velocidade horizontal
-    quando ocorre uma colisão.
+    Atrito horizontal.
 */
 
 const ATRITO_COLISAO =
-    0.88;
+    0.91;
 
 
 /*
-    ALEATORIEDADE DAS COLISÕES.
+    Pequena aleatoriedade nas colisões.
 
-    Quanto maior:
-        → mais imprevisível
+    Não aumentamos isso para resolver
+    problemas de geometria.
 
-    Quanto menor:
-        → mais o ponto escolhido influencia
-          o resultado.
-
-    Recomendo começar entre 25 e 50.
+    Ela serve apenas para evitar trajetórias
+    perfeitamente idênticas.
 */
 
 const ALEATORIEDADE_COLISAO =
-    35;
+    18;
 
 
 /*
-    VELOCIDADE MÁXIMA.
+    Pequena variação tangencial.
 
-    Evita que a bola acelere demais.
+    Também mantida baixa.
+*/
+
+const VARIACAO_TANGENCIAL =
+    10;
+
+
+/*
+    Velocidade máxima.
 */
 
 const VELOCIDADE_MAXIMA =
@@ -138,28 +201,23 @@ const VELOCIDADE_MAXIMA =
 
 
 /*
-    VELOCIDADE MÍNIMA DE DESCIDA.
+    Velocidade vertical mínima.
 
-    Impede a bola de ficar presa entre
-    dois pinos por muito tempo.
+    Evita que a bola fique presa.
 */
 
 const VELOCIDADE_MINIMA_DESCIDA =
-    90;
+    80;
 
 
 /*
-    QUANTIDADE DE SUBPASSOS DE FÍSICA.
+    Subpassos de física.
 
-    Mais subpassos:
-        → colisões mais precisas
-        → maior custo de processamento
-
-    3 é um bom equilíbrio.
+    Mais precisão nas colisões.
 */
 
 const SUBPASSOS_FISICA =
-    3;
+    4;
 
 
 /* =========================================================
@@ -171,16 +229,39 @@ const RAIO_BOLA =
 
 
 /* =========================================================
+   MULTIPLICADORES
+   ========================================================= */
+
+const multiplicadores = [
+
+    1.25,
+    0.5,
+    0.5,
+    0.2,
+    4,
+    0.2,
+    0.5,
+    0.5,
+    1.25
+
+];
+
+
+/* =========================================================
    SISTEMA DE PEPITAS
    ========================================================= */
 
 function obterSaldo() {
 
     const saldoSalvo =
-        localStorage.getItem("goldAmount");
+        localStorage.getItem(
+            "goldAmount"
+        );
 
 
-    if (saldoSalvo === null) {
+    if (
+        saldoSalvo === null
+    ) {
 
         localStorage.setItem(
             "goldAmount",
@@ -193,10 +274,14 @@ function obterSaldo() {
 
 
     const saldo =
-        Number(saldoSalvo);
+        Number(
+            saldoSalvo
+        );
 
 
-    if (!Number.isFinite(saldo)) {
+    if (
+        !Number.isFinite(saldo)
+    ) {
 
         localStorage.setItem(
             "goldAmount",
@@ -271,7 +356,9 @@ function obterAposta() {
     }
 
 
-    return Math.floor(valor);
+    return Math.floor(
+        valor
+    );
 
 }
 
@@ -286,7 +373,9 @@ function atualizarApostaVisual() {
         obterAposta();
 
 
-    if (valor < 1) {
+    if (
+        valor < 1
+    ) {
 
         selectedBetElement.textContent =
             "0 ◆";
@@ -310,16 +399,23 @@ maxBetButton.addEventListener(
     "click",
     function () {
 
-        if (dropButton.disabled) {
+        if (
+            bolaEmMovimento
+        ) {
+
             return;
+
         }
 
 
         betInput.value =
-            Math.floor(goldAmount);
+            Math.floor(
+                goldAmount
+            );
 
 
         atualizarApostaVisual();
+
 
         betInput.focus();
 
@@ -328,7 +424,7 @@ maxBetButton.addEventListener(
 
 
 /* =========================================================
-   MUDANÇA NO INPUT
+   INPUT DA APOSTA
    ========================================================= */
 
 betInput.addEventListener(
@@ -342,75 +438,27 @@ betInput.addEventListener(
 
 
 /* =========================================================
-   CONFIGURAÇÃO DO TABULEIRO
-   ========================================================= */
-
-const LINHAS =
-    10;
-
-
-/*
-    Multiplicadores das nove casas finais.
-*/
-
-const multiplicadores = [
-
-    0.75,
-    1.5,
-    0.5,
-    0.2,
-    5,
-    0.2,
-    0.5,
-    1.5,
-    0.75
-
-];
-
-
-/* =========================================================
    ESTADO DO JOGO
    ========================================================= */
-
-
-/*
-    Posição escolhida pelo jogador.
-
-    Valor entre 0 e 100%.
-
-    null = nenhuma posição escolhida.
-*/
 
 let posicaoEscolhida =
     null;
 
 
-/*
-    Indica se existe uma bola em movimento.
-*/
-
 let bolaEmMovimento =
     false;
 
 
-/*
-    Lista com a posição física de cada pino.
-*/
-
 let pegsFisicos =
     [];
 
-
-/*
-    Marcador visual da posição escolhida.
-*/
 
 let marcadorLancamento =
     null;
 
 
 /* =========================================================
-   CRIAR PINOS
+   CRIAR TABULEIRO
    ========================================================= */
 
 function criarTabuleiro() {
@@ -419,6 +467,19 @@ function criarTabuleiro() {
         "";
 
 
+    pegsFisicos =
+        [];
+
+
+    /*
+        Criamos fileiras alternadas.
+
+        A geometria é completamente fixa.
+
+        Nenhum valor depende da largura
+        atual da tela.
+    */
+
     for (
         let linha = 0;
         linha < LINHAS;
@@ -426,11 +487,37 @@ function criarTabuleiro() {
     ) {
 
         const quantidade =
-            linha + 2;
+            linha % 2 === 0
+                ? PINOS_FILEIRA_A
+                : PINOS_FILEIRA_B;
 
 
-        const espacamentoX =
-            100 / quantidade;
+        /*
+            Largura ocupada pela fileira.
+        */
+
+        const larguraLinha =
+            (
+                quantidade - 1
+            ) *
+            ESPACAMENTO_X;
+
+
+        /*
+            Centraliza a fileira.
+        */
+
+        const inicioX =
+            (
+                BOARD_WIDTH -
+                larguraLinha
+            ) / 2;
+
+
+        const y =
+            PRIMEIRO_Y +
+            linha *
+            ESPACAMENTO_Y;
 
 
         for (
@@ -439,30 +526,28 @@ function criarTabuleiro() {
             coluna++
         ) {
 
+            const x =
+                inicioX +
+                coluna *
+                ESPACAMENTO_X;
+
+
             const peg =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
 
             peg.className =
                 "peg";
 
 
-            const x =
-                (coluna + 0.5) *
-                espacamentoX;
-
-
-            const y =
-                7 +
-                linha * 8.9;
-
-
             peg.style.left =
-                `${x}%`;
+                `${x}px`;
 
 
             peg.style.top =
-                `${y}%`;
+                `${y}px`;
 
 
             plinkoBoard.appendChild(
@@ -480,7 +565,7 @@ function criarTabuleiro() {
 
 
 /* =========================================================
-   OBTER POSIÇÃO FÍSICA DOS PINOS
+   POSIÇÃO DOS PINOS PARA A FÍSICA
    ========================================================= */
 
 function atualizarFisicaDosPinos() {
@@ -489,35 +574,29 @@ function atualizarFisicaDosPinos() {
         [];
 
 
-    const boardRect =
-        boardFrame.getBoundingClientRect();
-
-
     const pegElements =
-        plinkoBoard.querySelectorAll(".peg");
+        plinkoBoard.querySelectorAll(
+            ".peg"
+        );
 
 
     pegElements.forEach(
         function (peg) {
 
-            const rect =
-                peg.getBoundingClientRect();
-
-
             pegsFisicos.push({
 
                 x:
-                    rect.left -
-                    boardRect.left +
-                    rect.width / 2,
+                    parseFloat(
+                        peg.style.left
+                    ),
 
                 y:
-                    rect.top -
-                    boardRect.top +
-                    rect.height / 2,
+                    parseFloat(
+                        peg.style.top
+                    ),
 
                 raio:
-                    rect.width / 2
+                    6
 
             });
 
@@ -547,18 +626,24 @@ function posicionarBola(
 
 
 /* =========================================================
-   CRIAR MARCADOR DE LANÇAMENTO
+   CRIAR MARCADOR
    ========================================================= */
 
 function criarMarcadorLancamento() {
 
-    if (marcadorLancamento) {
+    if (
+        marcadorLancamento
+    ) {
+
         return;
+
     }
 
 
     marcadorLancamento =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
 
     marcadorLancamento.className =
@@ -601,60 +686,83 @@ function atualizarMarcadorLancamento() {
 
 
 /* =========================================================
-   ESCOLHER POSIÇÃO
+   ESCOLHER POSIÇÃO DE LANÇAMENTO
    ========================================================= */
 
 boardFrame.addEventListener(
     "click",
     function (event) {
 
-        /*
-            Não permite escolher outra posição
-            enquanto uma bola estiver caindo.
-        */
+        if (
+            bolaEmMovimento
+        ) {
 
-        if (bolaEmMovimento) {
             return;
+
         }
 
 
         /*
-            Ignora cliques na parte inferior
-            que estejam sobre controles.
+            Pegamos a posição visual
+            do stage.
         */
 
-        const rect =
-            boardFrame.getBoundingClientRect();
-
-
-        let x =
-            event.clientX -
-            rect.left;
+        const stageRect =
+            plinkoStage.getBoundingClientRect();
 
 
         /*
-            Mantém dentro do tabuleiro.
+            Calculamos a escala visual.
+
+            Exemplo:
+
+            stage lógico = 640px
+            stage visual = 320px
+
+            escala = 0.5
+        */
+
+        const escala =
+            stageRect.width /
+            BOARD_WIDTH;
+
+
+        /*
+            Converte o clique da tela
+            para o sistema lógico de 640px.
+        */
+
+        let x =
+            (
+                event.clientX -
+                stageRect.left
+            ) /
+            escala;
+
+
+        /*
+            Limita a posição inicial.
         */
 
         x =
             Math.max(
-                RAIO_BOLA,
+                MARGEM_LANCAMENTO,
                 Math.min(
-                    rect.width -
-                    RAIO_BOLA,
+                    BOARD_WIDTH -
+                    MARGEM_LANCAMENTO,
                     x
                 )
             );
 
 
         /*
-            Converte para porcentagem.
+            Guarda em porcentagem.
         */
 
         posicaoEscolhida =
             (
                 x /
-                rect.width
+                BOARD_WIDTH
             ) *
             100;
 
@@ -672,17 +780,693 @@ boardFrame.addEventListener(
 
 
 /* =========================================================
-   ESPERAR
+   LIMITAR VELOCIDADE
    ========================================================= */
 
-function esperar(ms) {
+function limitarVelocidade(
+    bola
+) {
+
+    const velocidade =
+        Math.sqrt(
+            bola.vx * bola.vx +
+            bola.vy * bola.vy
+        );
+
+
+    if (
+        velocidade <=
+        VELOCIDADE_MAXIMA
+    ) {
+
+        return;
+
+    }
+
+
+    const fator =
+        VELOCIDADE_MAXIMA /
+        velocidade;
+
+
+    bola.vx *=
+        fator;
+
+
+    bola.vy *=
+        fator;
+
+}
+
+
+/* =========================================================
+   COLISÃO COM OS PINOS
+   ========================================================= */
+
+function verificarColisoes(
+    bola
+) {
+
+    for (
+        const peg of pegsFisicos
+    ) {
+
+        const dx =
+            bola.x -
+            peg.x;
+
+
+        const dy =
+            bola.y -
+            peg.y;
+
+
+        const distanciaQuadrada =
+            dx * dx +
+            dy * dy;
+
+
+        const distancia =
+            Math.sqrt(
+                distanciaQuadrada
+            );
+
+
+        const distanciaMinima =
+            RAIO_BOLA +
+            peg.raio;
+
+
+        /*
+            Não colidiu.
+        */
+
+        if (
+            distancia >=
+            distanciaMinima
+        ) {
+
+            continue;
+
+        }
+
+
+        /*
+            Normal da colisão.
+        */
+
+        let normalX;
+        let normalY;
+
+
+        if (
+            distancia < 0.001
+        ) {
+
+            /*
+                Caso extremamente raro:
+                a bola está exatamente no centro
+                do pino.
+
+                Escolhemos uma direção pequena
+                apenas para desempatar.
+            */
+
+            const angulo =
+                Math.random() *
+                Math.PI *
+                2;
+
+
+            normalX =
+                Math.cos(
+                    angulo
+                );
+
+
+            normalY =
+                Math.sin(
+                    angulo
+                );
+
+        }
+
+        else {
+
+            normalX =
+                dx /
+                distancia;
+
+
+            normalY =
+                dy /
+                distancia;
+
+        }
+
+
+        /*
+            Retira a bola de dentro do pino.
+        */
+
+        const penetracao =
+            distanciaMinima -
+            distancia;
+
+
+        bola.x +=
+            normalX *
+            penetracao;
+
+
+        bola.y +=
+            normalY *
+            penetracao;
+
+
+        /*
+            Velocidade na direção
+            da normal.
+        */
+
+        const velocidadeNormal =
+            bola.vx *
+            normalX +
+            bola.vy *
+            normalY;
+
+
+        /*
+            Apenas rebate se a bola estiver
+            se aproximando do pino.
+        */
+
+        if (
+            velocidadeNormal < 0
+        ) {
+
+            bola.vx -=
+                (
+                    1 +
+                    RESTITUICAO
+                ) *
+                velocidadeNormal *
+                normalX;
+
+
+            bola.vy -=
+                (
+                    1 +
+                    RESTITUICAO
+                ) *
+                velocidadeNormal *
+                normalY;
+
+        }
+
+
+        /*
+            ATRITO
+        */
+
+        bola.vx *=
+            ATRITO_COLISAO;
+
+
+        /*
+            PEQUENA VARIAÇÃO ALEATÓRIA
+
+            É propositalmente baixa.
+
+            Ela não existe para decidir
+            o prêmio, apenas para evitar
+            trajetórias perfeitamente idênticas.
+        */
+
+        bola.vx +=
+            (
+                Math.random() -
+                0.5
+            ) *
+            2 *
+            ALEATORIEDADE_COLISAO;
+
+
+        /*
+            Pequena componente tangencial.
+        */
+
+        const tangenteX =
+            -normalY;
+
+
+        const tangenteY =
+            normalX;
+
+
+        const impulsoTangencial =
+            (
+                Math.random() -
+                0.5
+            ) *
+            2 *
+            VARIACAO_TANGENCIAL;
+
+
+        bola.vx +=
+            tangenteX *
+            impulsoTangencial;
+
+
+        bola.vy +=
+            tangenteY *
+            impulsoTangencial;
+
+
+        /*
+            Garante que a bola
+            continue descendo.
+        */
+
+        if (
+            bola.vy <
+            VELOCIDADE_MINIMA_DESCIDA
+        ) {
+
+            bola.vy =
+                VELOCIDADE_MINIMA_DESCIDA;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   PAREDES COM TELETRANSPORTE
+   ========================================================= */
+
+function verificarLimitesHorizontais(
+    bola,
+    largura
+) {
+
+    /*
+        IMPORTANTE:
+
+        Não existem paredes laterais.
+
+        Se a bola sair pela esquerda,
+        entra pela direita.
+
+        Se sair pela direita,
+        entra pela esquerda.
+
+        Isso cria um espaço horizontal
+        contínuo.
+    */
+
+    if (
+        bola.x < -RAIO_BOLA
+    ) {
+
+        bola.x =
+            largura +
+            RAIO_BOLA;
+
+    }
+
+
+    if (
+        bola.x >
+        largura +
+        RAIO_BOLA
+    ) {
+
+        bola.x =
+            -RAIO_BOLA;
+
+    }
+
+}
+
+
+/* =========================================================
+   VERIFICAR FUNDO
+   ========================================================= */
+
+function verificarLimiteInferior(
+    bola,
+    altura
+) {
+
+    if (
+        bola.y >=
+        altura -
+        RAIO_BOLA
+    ) {
+
+        bola.y =
+            altura -
+            RAIO_BOLA;
+
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+/* =========================================================
+   DETERMINAR RESULTADO
+   ========================================================= */
+
+function obterResultadoPorX(
+    x
+) {
+
+    const larguraCasa =
+        BOARD_WIDTH /
+        multiplicadores.length;
+
+
+    let resultado =
+        Math.floor(
+            x /
+            larguraCasa
+        );
+
+
+    resultado =
+        Math.max(
+            0,
+            Math.min(
+                multiplicadores.length - 1,
+                resultado
+            )
+        );
+
+
+    return resultado;
+
+}
+
+
+/* =========================================================
+   ANIMAÇÃO FÍSICA
+   ========================================================= */
+
+function animarBolaFisica() {
 
     return new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                ms
-            )
+        function (resolve) {
+
+            /*
+                Sempre usamos o tamanho
+                lógico do tabuleiro.
+            */
+
+            const largura =
+                BOARD_WIDTH;
+
+
+            const altura =
+                BOARD_HEIGHT;
+
+
+            /*
+                Posição inicial escolhida.
+            */
+
+            const xInicial =
+                (
+                    posicaoEscolhida /
+                    100
+                ) *
+                BOARD_WIDTH;
+
+
+            /*
+                Estado físico da bola.
+            */
+
+            const bola = {
+
+                x:
+                    xInicial,
+
+                y:
+                    RAIO_BOLA +
+                    2,
+
+                vx:
+                    (
+                        Math.random() -
+                        0.5
+                    ) *
+                    VARIACAO_INICIAL_X,
+
+                vy:
+                    VELOCIDADE_INICIAL_Y
+
+            };
+
+
+            /*
+                Mostra a bola.
+            */
+
+            plinkoBall.style.opacity =
+                "1";
+
+
+            /*
+                Esconde o marcador.
+            */
+
+            if (
+                marcadorLancamento
+            ) {
+
+                marcadorLancamento.style.opacity =
+                    "0";
+
+            }
+
+
+            /*
+                Tempo do último frame.
+            */
+
+            let ultimoTempo =
+                performance.now();
+
+
+            /*
+                LOOP DE FÍSICA
+            */
+
+            function atualizar(
+                tempoAtual
+            ) {
+
+                /*
+                    Delta time em segundos.
+                */
+
+                let delta =
+                    (
+                        tempoAtual -
+                        ultimoTempo
+                    ) /
+                    1000;
+
+
+                /*
+                    Evita saltos enormes
+                    caso o navegador trave
+                    momentaneamente.
+                */
+
+                delta =
+                    Math.min(
+                        delta,
+                        0.033
+                    );
+
+
+                ultimoTempo =
+                    tempoAtual;
+
+
+                /*
+                    Divide o frame.
+                */
+
+                const dt =
+                    delta /
+                    SUBPASSOS_FISICA;
+
+
+                let chegouAoFinal =
+                    false;
+
+
+                /*
+                    Subpassos físicos.
+                */
+
+                for (
+                    let passo = 0;
+                    passo <
+                    SUBPASSOS_FISICA;
+                    passo++
+                ) {
+
+                    /*
+                        GRAVIDADE
+                    */
+
+                    bola.vy +=
+                        GRAVIDADE *
+                        dt;
+
+
+                    /*
+                        MOVIMENTO
+                    */
+
+                    bola.x +=
+                        bola.vx *
+                        dt;
+
+
+                    bola.y +=
+                        bola.vy *
+                        dt;
+
+
+                    /*
+                        COLISÕES
+                    */
+
+                    verificarColisoes(
+                        bola
+                    );
+
+
+                    /*
+                        TELETRANSPORTE
+                        DAS LATERAIS
+                    */
+
+                    verificarLimitesHorizontais(
+                        bola,
+                        largura
+                    );
+
+
+                    /*
+                        FUNDO
+                    */
+
+                    if (
+                        verificarLimiteInferior(
+                            bola,
+                            altura
+                        )
+                    ) {
+
+                        chegouAoFinal =
+                            true;
+
+                        break;
+
+                    }
+
+
+                    /*
+                        VELOCIDADE
+                    */
+
+                    limitarVelocidade(
+                        bola
+                    );
+
+                }
+
+
+                /*
+                    Atualiza a posição visual.
+                */
+
+                posicionarBola(
+                    bola.x,
+                    bola.y
+                );
+
+
+                /*
+                    Finalizou.
+                */
+
+                if (
+                    chegouAoFinal
+                ) {
+
+                    const resultado =
+                        obterResultadoPorX(
+                            bola.x
+                        );
+
+
+                    /*
+                        Mostra a bola rapidamente
+                        antes de desaparecer.
+                    */
+
+                    setTimeout(
+                        function () {
+
+                            plinkoBall.style.opacity =
+                                "0";
+
+
+                            resolve(
+                                resultado
+                            );
+
+                        },
+                        180
+                    );
+
+
+                    return;
+
+                }
+
+
+                /*
+                    Próximo frame.
+                */
+
+                requestAnimationFrame(
+                    atualizar
+                );
+
+            }
+
+
+            requestAnimationFrame(
+                atualizar
+            );
+
+        }
     );
 
 }
@@ -749,7 +1533,9 @@ function mostrarMensagem(
         "result-message";
 
 
-    if (tipo !== "") {
+    if (
+        tipo !== ""
+    ) {
 
         resultMessage.classList.add(
             tipo
@@ -761,637 +1547,13 @@ function mostrarMensagem(
 
 
 /* =========================================================
-   COLISÃO COM PINO
-   ========================================================= */
-
-function verificarColisoes(
-    bola
-) {
-
-    for (
-        const peg of pegsFisicos
-    ) {
-
-        const dx =
-            bola.x -
-            peg.x;
-
-
-        const dy =
-            bola.y -
-            peg.y;
-
-
-        const distancia =
-            Math.sqrt(
-                dx * dx +
-                dy * dy
-            );
-
-
-        const distanciaMinima =
-            RAIO_BOLA +
-            peg.raio;
-
-
-        /*
-            Não houve colisão.
-        */
-
-        if (
-            distancia >=
-            distanciaMinima
-        ) {
-
-            continue;
-
-        }
-
-
-        /*
-            Evita divisão por zero
-            caso a bola esteja exatamente
-            no centro do pino.
-        */
-
-        let normalX =
-            dx /
-            (distancia || 1);
-
-
-        let normalY =
-            dy /
-            (distancia || 1);
-
-
-        /*
-            Empurra a bola para fora do pino.
-
-            Isso evita que ela fique presa
-            dentro da colisão.
-        */
-
-        const penetracao =
-            distanciaMinima -
-            distancia;
-
-
-        bola.x +=
-            normalX *
-            penetracao;
-
-
-        bola.y +=
-            normalY *
-            penetracao;
-
-
-        /*
-            Calcula a velocidade na direção
-            do pino.
-        */
-
-        const velocidadeNormal =
-            bola.vx *
-            normalX +
-            bola.vy *
-            normalY;
-
-
-        /*
-            Só rebate se estiver indo em
-            direção ao pino.
-
-            Isso evita múltiplos rebotes
-            desnecessários.
-        */
-
-        if (
-            velocidadeNormal < 0
-        ) {
-
-            bola.vx -=
-                (
-                    1 +
-                    RESTITUICAO
-                ) *
-                velocidadeNormal *
-                normalX;
-
-
-            bola.vy -=
-                (
-                    1 +
-                    RESTITUICAO
-                ) *
-                velocidadeNormal *
-                normalY;
-
-        }
-
-
-        /*
-            Pequena perda de velocidade
-            horizontal.
-        */
-
-        bola.vx *=
-            ATRITO_COLISAO;
-
-
-        /*
-            Aleatoriedade.
-
-            O jogador escolhe a posição,
-            mas nunca consegue prever
-            exatamente todos os impactos.
-        */
-
-        bola.vx +=
-            (
-                Math.random() -
-                0.5
-            ) *
-            2 *
-            ALEATORIEDADE_COLISAO;
-
-
-        /*
-            Garante que a bola continue
-            descendo razoavelmente.
-        */
-
-        if (
-            bola.vy <
-            VELOCIDADE_MINIMA_DESCIDA
-        ) {
-
-            bola.vy =
-                VELOCIDADE_MINIMA_DESCIDA;
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   LIMITAR VELOCIDADE
-   ========================================================= */
-
-function limitarVelocidade(
-    bola
-) {
-
-    const velocidade =
-        Math.sqrt(
-            bola.vx * bola.vx +
-            bola.vy * bola.vy
-        );
-
-
-    if (
-        velocidade <=
-        VELOCIDADE_MAXIMA
-    ) {
-
-        return;
-
-    }
-
-
-    const fator =
-        VELOCIDADE_MAXIMA /
-        velocidade;
-
-
-    bola.vx *=
-        fator;
-
-
-    bola.vy *=
-        fator;
-
-}
-
-
-/* =========================================================
-   COLISÃO COM AS PAREDES
-   ========================================================= */
-
-function verificarParedes(
-    bola,
-    largura,
-    altura
-) {
-
-    /*
-        Parede esquerda.
-    */
-
-    if (
-        bola.x <
-        RAIO_BOLA
-    ) {
-
-        bola.x =
-            RAIO_BOLA;
-
-
-        bola.vx =
-            Math.abs(
-                bola.vx
-            ) *
-            RESTITUICAO;
-
-    }
-
-
-    /*
-        Parede direita.
-    */
-
-    if (
-        bola.x >
-        largura -
-        RAIO_BOLA
-    ) {
-
-        bola.x =
-            largura -
-            RAIO_BOLA;
-
-
-        bola.vx =
-            -Math.abs(
-                bola.vx
-            ) *
-            RESTITUICAO;
-
-    }
-
-
-    /*
-        Não deixa a bola parar completamente
-        na horizontal.
-    */
-
-    if (
-        Math.abs(
-            bola.vx
-        ) < 5
-    ) {
-
-        bola.vx +=
-            (
-                Math.random() -
-                0.5
-            ) *
-            10;
-
-    }
-
-
-    /*
-        Parede inferior.
-
-        Quando chegar aqui, consideramos
-        que encontrou uma casa final.
-    */
-
-    if (
-        bola.y >
-        altura -
-        RAIO_BOLA
-    ) {
-
-        bola.y =
-            altura -
-            RAIO_BOLA;
-
-        return true;
-
-    }
-
-
-    return false;
-
-}
-
-
-/* =========================================================
-   DETERMINAR CASA FINAL
-   ========================================================= */
-
-function obterResultadoPorX(
-    x,
-    largura
-) {
-
-    /*
-        Divide o tabuleiro em nove regiões.
-    */
-
-    const larguraCasa =
-        largura /
-        multiplicadores.length;
-
-
-    let resultado =
-        Math.floor(
-            x /
-            larguraCasa
-        );
-
-
-    resultado =
-        Math.max(
-            0,
-            Math.min(
-                multiplicadores.length - 1,
-                resultado
-            )
-        );
-
-
-    return resultado;
-
-}
-
-
-/* =========================================================
-   ANIMAÇÃO FÍSICA
-   ========================================================= */
-
-function animarBolaFisica() {
-
-    return new Promise(
-        function (resolve) {
-
-            const rect =
-                boardFrame.getBoundingClientRect();
-
-
-            const largura =
-                rect.width;
-
-
-            const altura =
-                rect.height;
-
-
-            /*
-                Converte a posição escolhida
-                em pixels.
-            */
-
-            const xInicial =
-                (
-                    posicaoEscolhida /
-                    100
-                ) *
-                largura;
-
-
-            /*
-                Estado físico da bola.
-            */
-
-            const bola = {
-
-                x:
-                    xInicial,
-
-                y:
-                    RAIO_BOLA + 2,
-
-                vx:
-                    (
-                        Math.random() -
-                        0.5
-                    ) *
-                    VARIACAO_INICIAL_X,
-
-                vy:
-                    VELOCIDADE_INICIAL_Y
-
-            };
-
-
-            plinkoBall.style.opacity =
-                "1";
-
-
-            /*
-                Desativa o marcador durante
-                a queda.
-            */
-
-            if (
-                marcadorLancamento
-            ) {
-
-                marcadorLancamento.style.opacity =
-                    "0";
-
-            }
-
-
-            let ultimoTempo =
-                performance.now();
-
-
-            function atualizar(
-                tempoAtual
-            ) {
-
-                /*
-                    Delta time.
-
-                    Limitamos para evitar que
-                    uma aba congelada cause um
-                    salto enorme.
-                */
-
-                let delta =
-                    (
-                        tempoAtual -
-                        ultimoTempo
-                    ) /
-                    1000;
-
-
-                delta =
-                    Math.min(
-                        delta,
-                        0.033
-                    );
-
-
-                ultimoTempo =
-                    tempoAtual;
-
-
-                const dt =
-                    delta /
-                    SUBPASSOS_FISICA;
-
-
-                let chegouAoFinal =
-                    false;
-
-
-                /*
-                    Executa vários pequenos passos
-                    por frame para melhorar a precisão.
-                */
-
-                for (
-                    let passo = 0;
-                    passo < SUBPASSOS_FISICA;
-                    passo++
-                ) {
-
-                    /*
-                        Gravidade.
-                    */
-
-                    bola.vy +=
-                        GRAVIDADE *
-                        dt;
-
-
-                    /*
-                        Movimento.
-                    */
-
-                    bola.x +=
-                        bola.vx *
-                        dt;
-
-
-                    bola.y +=
-                        bola.vy *
-                        dt;
-
-
-                    /*
-                        Colisões.
-                    */
-
-                    verificarColisoes(
-                        bola
-                    );
-
-
-                    /*
-                        Paredes.
-                    */
-
-                    if (
-                        verificarParedes(
-                            bola,
-                            largura,
-                            altura
-                        )
-                    ) {
-
-                        chegouAoFinal =
-                            true;
-
-                        break;
-
-                    }
-
-
-                    /*
-                        Limita a velocidade.
-                    */
-
-                    limitarVelocidade(
-                        bola
-                    );
-
-                }
-
-
-                /*
-                    Atualiza visual.
-                */
-
-                posicionarBola(
-                    bola.x,
-                    bola.y
-                );
-
-
-                /*
-                    Chegou no fundo.
-                */
-
-                if (
-                    chegouAoFinal
-                ) {
-
-                    const resultado =
-                        obterResultadoPorX(
-                            bola.x,
-                            largura
-                        );
-
-
-                    /*
-                        Pequena pausa visual
-                        antes de finalizar.
-                    */
-
-                    setTimeout(
-                        function () {
-
-                            plinkoBall.style.opacity =
-                                "0";
-
-
-                            resolve(
-                                resultado
-                            );
-
-                        },
-                        180
-                    );
-
-
-                    return;
-
-                }
-
-
-                requestAnimationFrame(
-                    atualizar
-                );
-
-            }
-
-
-            requestAnimationFrame(
-                atualizar
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
    SOLTAR BOLA
    ========================================================= */
 
 async function soltarBola() {
 
     /*
-        Impede múltiplas jogadas.
+        Impede outra jogada simultânea.
     */
 
     if (
@@ -1404,8 +1566,7 @@ async function soltarBola() {
 
 
     /*
-        Exige que o jogador escolha
-        uma posição.
+        É obrigatório escolher uma posição.
     */
 
     if (
@@ -1422,7 +1583,7 @@ async function soltarBola() {
 
 
     /* =====================================================
-       OBTER APOSTA
+       APOSTA
        ===================================================== */
 
     aposta =
@@ -1445,11 +1606,12 @@ async function soltarBola() {
 
 
     /* =====================================================
-       VERIFICAR SALDO
+       SALDO
        ===================================================== */
 
     if (
-        aposta > goldAmount
+        aposta >
+        goldAmount
     ) {
 
         mostrarMensagem(
@@ -1464,7 +1626,7 @@ async function soltarBola() {
 
 
     /* =====================================================
-       DESCONTAR APOSTA
+       DESCONTAR
        ===================================================== */
 
     goldAmount -=
@@ -1523,7 +1685,7 @@ async function soltarBola() {
 
     const multiplicador =
         multiplicadores[
-            resultado
+        resultado
         ];
 
 
@@ -1535,7 +1697,7 @@ async function soltarBola() {
 
 
     /* =====================================================
-       DESTACAR CASA
+       DESTACAR
        ===================================================== */
 
     destacarMultiplicador(
@@ -1612,7 +1774,7 @@ async function soltarBola() {
 
 
     /* =====================================================
-       VERIFICAR FALÊNCIA
+       FALÊNCIA
        ===================================================== */
 
     if (
@@ -1645,7 +1807,7 @@ async function soltarBola() {
 
 
     /* =====================================================
-       FINALIZAR RODADA
+       LIBERAR
        ===================================================== */
 
     bolaEmMovimento =
@@ -1670,8 +1832,7 @@ async function soltarBola() {
 
 
     /*
-        Obriga o jogador a escolher
-        uma nova posição para a próxima bola.
+        Obriga uma nova posição.
     */
 
     posicaoEscolhida =
@@ -1729,7 +1890,8 @@ window.addEventListener(
     function (event) {
 
         if (
-            event.key !== "goldAmount"
+            event.key !==
+            "goldAmount"
         ) {
 
             return;
@@ -1766,7 +1928,73 @@ window.addEventListener(
 
 
 /* =========================================================
-   FALÊNCIA AO ABRIR
+   RESPONSIVIDADE
+   ========================================================= */
+
+function atualizarEscalaTabuleiro() {
+
+    if (
+        !plinkoStage ||
+        !boardFrame
+    ) {
+
+        return;
+
+    }
+
+
+    const larguraDisponivel =
+        boardFrame.clientWidth;
+
+
+    const alturaDisponivel =
+        boardFrame.clientHeight;
+
+
+    const escalaHorizontal =
+        larguraDisponivel /
+        BOARD_WIDTH;
+
+
+    const escalaVertical =
+        alturaDisponivel /
+        BOARD_HEIGHT;
+
+
+    /*
+        Escolhe a menor escala.
+
+        O stage mantém sua geometria.
+    */
+
+    const escala =
+        Math.min(
+            escalaHorizontal,
+            escalaVertical
+        );
+
+
+    plinkoStage.style.transform =
+        `
+        translate(-50%, -50%)
+        scale(${escala})
+        `;
+
+}
+
+
+window.addEventListener(
+    "resize",
+    function () {
+
+        atualizarEscalaTabuleiro();
+
+    }
+);
+
+
+/* =========================================================
+   FALÊNCIA
    ========================================================= */
 
 function verificarFalencia() {
@@ -1799,35 +2027,12 @@ function verificarFalencia() {
 
 
 /* =========================================================
-   RESPONSIVIDADE DA FÍSICA
-   ========================================================= */
-
-/*
-    Quando a janela muda de tamanho,
-    recalcula as posições dos pinos.
-*/
-
-window.addEventListener(
-    "resize",
-    function () {
-
-        if (
-            !bolaEmMovimento
-        ) {
-
-            atualizarFisicaDosPinos();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
    INICIALIZAÇÃO
    ========================================================= */
 
 criarTabuleiro();
+
+atualizarEscalaTabuleiro();
 
 atualizarSaldo();
 
