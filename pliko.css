@@ -1554,3 +1554,111 @@ body {
     }
 
 }
+
+/* =========================================================
+   MARCADOR DE LANÇAMENTO
+   ========================================================= */
+
+.drop-marker {
+
+    position: absolute;
+
+    z-index: 8;
+
+    top: 0;
+
+    width: 3px;
+
+    height: 100%;
+
+    transform: translateX(-50%);
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            var(--gold-bright),
+            rgba(255, 215, 0, 0.15)
+        );
+
+    box-shadow:
+        0 0 8px
+        rgba(255, 215, 0, 0.55);
+
+    pointer-events: none;
+
+    transition:
+        left 0.12s ease,
+        opacity 0.2s ease;
+
+}
+
+
+.drop-marker::before {
+
+    content: "▼";
+
+    position: absolute;
+
+    top: 5px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        var(--gold-bright);
+
+    font-size: 15px;
+
+    text-shadow:
+        0 0 8px
+        rgba(255, 215, 0, 0.8);
+
+}
+
+
+/* =========================================================
+   TABULEIRO DURANTE A QUEDA
+   ========================================================= */
+
+.board-frame.ball-dropping {
+
+    cursor:
+        default;
+
+}
+
+
+.board-frame.ball-dropping .drop-marker {
+
+    opacity:
+        0 !important;
+
+}
+
+
+/* =========================================================
+   CURSOR DO TABULEIRO
+   ========================================================= */
+
+.board-frame {
+
+    cursor:
+        crosshair;
+
+}
+
+
+/*
+    A bola não deve interferir
+    no clique do tabuleiro.
+*/
+
+.plinko-ball {
+
+    pointer-events:
+        none;
+
+}

@@ -34,8 +34,140 @@ const plinkoBoard =
 const plinkoBall =
     document.getElementById("plinko-ball");
 
+const boardFrame =
+    document.querySelector(".board-frame");
+
 const multiplierElements =
     document.querySelectorAll(".multiplier");
+
+
+/* =========================================================
+   CONFIGURAÇÕES DE FÍSICA
+   ========================================================= */
+
+/*
+    GRAVIDADE
+
+    Quanto maior:
+        → a bola cai mais rápido
+        → as colisões acontecem em maior velocidade
+
+    Quanto menor:
+        → queda mais lenta
+        → movimento mais "flutuante"
+*/
+
+const GRAVIDADE =
+    1050;
+
+
+/*
+    VELOCIDADE INICIAL
+
+    Pequena velocidade vertical inicial para
+    a bola começar a cair suavemente.
+*/
+
+const VELOCIDADE_INICIAL_Y =
+    60;
+
+
+/*
+    PEQUENA VARIAÇÃO HORIZONTAL INICIAL.
+
+    Isso impede que a bola fique completamente
+    previsível quando lançada exatamente no centro.
+*/
+
+const VARIACAO_INICIAL_X =
+    35;
+
+
+/*
+    RESTITUIÇÃO.
+
+    Define quanto da velocidade é mantida
+    depois de bater em um pino.
+
+    1.0 = quique muito forte
+    0.0 = praticamente sem quique
+
+    0.6 ~ 0.7 costuma ficar bom.
+*/
+
+const RESTITUICAO =
+    0.68;
+
+
+/*
+    ATRITO.
+
+    Reduz um pouco a velocidade horizontal
+    quando ocorre uma colisão.
+*/
+
+const ATRITO_COLISAO =
+    0.88;
+
+
+/*
+    ALEATORIEDADE DAS COLISÕES.
+
+    Quanto maior:
+        → mais imprevisível
+
+    Quanto menor:
+        → mais o ponto escolhido influencia
+          o resultado.
+
+    Recomendo começar entre 25 e 50.
+*/
+
+const ALEATORIEDADE_COLISAO =
+    35;
+
+
+/*
+    VELOCIDADE MÁXIMA.
+
+    Evita que a bola acelere demais.
+*/
+
+const VELOCIDADE_MAXIMA =
+    950;
+
+
+/*
+    VELOCIDADE MÍNIMA DE DESCIDA.
+
+    Impede a bola de ficar presa entre
+    dois pinos por muito tempo.
+*/
+
+const VELOCIDADE_MINIMA_DESCIDA =
+    90;
+
+
+/*
+    QUANTIDADE DE SUBPASSOS DE FÍSICA.
+
+    Mais subpassos:
+        → colisões mais precisas
+        → maior custo de processamento
+
+    3 é um bom equilíbrio.
+*/
+
+const SUBPASSOS_FISICA =
+    3;
+
+
+/* =========================================================
+   TAMANHO DA BOLA
+   ========================================================= */
+
+const RAIO_BOLA =
+    12;
 
 
 /* =========================================================
@@ -117,7 +249,8 @@ function atualizarSaldo() {
    APOSTA
    ========================================================= */
 
-let aposta = 25;
+let aposta =
+    25;
 
 
 function obterAposta() {
@@ -177,8 +310,14 @@ maxBetButton.addEventListener(
     "click",
     function () {
 
+        if (dropButton.disabled) {
+            return;
+        }
+
+
         betInput.value =
             Math.floor(goldAmount);
+
 
         atualizarApostaVisual();
 
@@ -206,32 +345,68 @@ betInput.addEventListener(
    CONFIGURAÇÃO DO TABULEIRO
    ========================================================= */
 
-
-/*
-    Quantidade de linhas de pinos.
-*/
-
 const LINHAS =
     10;
 
 
 /*
-    Multiplicadores das casas finais.
+    Multiplicadores das nove casas finais.
 */
 
 const multiplicadores = [
 
-    0.3,
-    0.6,
-    1,
+    0.75,
     1.5,
+    0.5,
+    0.2,
     5,
+    0.2,
+    0.5,
     1.5,
-    1,
-    0.6,
-    0.3
+    0.75
 
 ];
+
+
+/* =========================================================
+   ESTADO DO JOGO
+   ========================================================= */
+
+
+/*
+    Posição escolhida pelo jogador.
+
+    Valor entre 0 e 100%.
+
+    null = nenhuma posição escolhida.
+*/
+
+let posicaoEscolhida =
+    null;
+
+
+/*
+    Indica se existe uma bola em movimento.
+*/
+
+let bolaEmMovimento =
+    false;
+
+
+/*
+    Lista com a posição física de cada pino.
+*/
+
+let pegsFisicos =
+    [];
+
+
+/*
+    Marcador visual da posição escolhida.
+*/
+
+let marcadorLancamento =
+    null;
 
 
 /* =========================================================
@@ -240,15 +415,9 @@ const multiplicadores = [
 
 function criarTabuleiro() {
 
-    plinkoBoard.innerHTML = "";
+    plinkoBoard.innerHTML =
+        "";
 
-
-    /*
-        O board tem 10 linhas.
-
-        Cada linha possui uma quantidade
-        diferente de pinos.
-    */
 
     for (
         let linha = 0;
@@ -273,13 +442,14 @@ function criarTabuleiro() {
             const peg =
                 document.createElement("div");
 
+
             peg.className =
                 "peg";
 
 
             const x =
-                (coluna + 0.5)
-                * espacamentoX;
+                (coluna + 0.5) *
+                espacamentoX;
 
 
             const y =
@@ -289,6 +459,7 @@ function criarTabuleiro() {
 
             peg.style.left =
                 `${x}%`;
+
 
             peg.style.top =
                 `${y}%`;
@@ -302,11 +473,62 @@ function criarTabuleiro() {
 
     }
 
+
+    atualizarFisicaDosPinos();
+
 }
 
 
 /* =========================================================
-   POSIÇÃO DA BOLA
+   OBTER POSIÇÃO FÍSICA DOS PINOS
+   ========================================================= */
+
+function atualizarFisicaDosPinos() {
+
+    pegsFisicos =
+        [];
+
+
+    const boardRect =
+        boardFrame.getBoundingClientRect();
+
+
+    const pegElements =
+        plinkoBoard.querySelectorAll(".peg");
+
+
+    pegElements.forEach(
+        function (peg) {
+
+            const rect =
+                peg.getBoundingClientRect();
+
+
+            pegsFisicos.push({
+
+                x:
+                    rect.left -
+                    boardRect.left +
+                    rect.width / 2,
+
+                y:
+                    rect.top -
+                    boardRect.top +
+                    rect.height / 2,
+
+                raio:
+                    rect.width / 2
+
+            });
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   POSICIONAR BOLA
    ========================================================= */
 
 function posicionarBola(
@@ -315,12 +537,138 @@ function posicionarBola(
 ) {
 
     plinkoBall.style.left =
-        `${x}%`;
+        `${x}px`;
+
 
     plinkoBall.style.top =
-        `${y}%`;
+        `${y}px`;
 
 }
+
+
+/* =========================================================
+   CRIAR MARCADOR DE LANÇAMENTO
+   ========================================================= */
+
+function criarMarcadorLancamento() {
+
+    if (marcadorLancamento) {
+        return;
+    }
+
+
+    marcadorLancamento =
+        document.createElement("div");
+
+
+    marcadorLancamento.className =
+        "drop-marker";
+
+
+    boardFrame.appendChild(
+        marcadorLancamento
+    );
+
+}
+
+
+/* =========================================================
+   ATUALIZAR MARCADOR
+   ========================================================= */
+
+function atualizarMarcadorLancamento() {
+
+    if (
+        posicaoEscolhida === null
+    ) {
+
+        return;
+
+    }
+
+
+    criarMarcadorLancamento();
+
+
+    marcadorLancamento.style.left =
+        `${posicaoEscolhida}%`;
+
+
+    marcadorLancamento.style.opacity =
+        "1";
+
+}
+
+
+/* =========================================================
+   ESCOLHER POSIÇÃO
+   ========================================================= */
+
+boardFrame.addEventListener(
+    "click",
+    function (event) {
+
+        /*
+            Não permite escolher outra posição
+            enquanto uma bola estiver caindo.
+        */
+
+        if (bolaEmMovimento) {
+            return;
+        }
+
+
+        /*
+            Ignora cliques na parte inferior
+            que estejam sobre controles.
+        */
+
+        const rect =
+            boardFrame.getBoundingClientRect();
+
+
+        let x =
+            event.clientX -
+            rect.left;
+
+
+        /*
+            Mantém dentro do tabuleiro.
+        */
+
+        x =
+            Math.max(
+                RAIO_BOLA,
+                Math.min(
+                    rect.width -
+                    RAIO_BOLA,
+                    x
+                )
+            );
+
+
+        /*
+            Converte para porcentagem.
+        */
+
+        posicaoEscolhida =
+            (
+                x /
+                rect.width
+            ) *
+            100;
+
+
+        atualizarMarcadorLancamento();
+
+
+        mostrarMensagem(
+            "POSIÇÃO ESCOLHIDA! CLIQUE EM SOLTAR.",
+            ""
+        );
+
+    }
+);
 
 
 /* =========================================================
@@ -341,378 +689,13 @@ function esperar(ms) {
 
 
 /* =========================================================
-   ANIMAÇÃO DE QUEDA
-   ========================================================= */
-
-async function animarBola(
-    caminho,
-    resultadoFinal
-) {
-
-    /*
-        Torna a bola visível.
-    */
-
-    plinkoBall.style.opacity =
-        "1";
-
-
-    /*
-        Começa no centro.
-    */
-
-    let x =
-        50;
-
-
-    posicionarBola(
-        x,
-        -3
-    );
-
-
-    await esperar(100);
-
-
-    /*
-        Cada escolha representa
-        esquerda ou direita.
-    */
-
-    for (
-        let i = 0;
-        i < caminho.length;
-        i++
-    ) {
-
-        const direcao =
-            caminho[i];
-
-
-        /*
-            Quantidade de movimento.
-        */
-
-        const movimento =
-            4.3;
-
-
-        if (direcao === "esquerda") {
-
-            x -= movimento;
-
-        }
-
-        else {
-
-            x += movimento;
-
-        }
-
-
-        /*
-            Mantém a bola dentro do board.
-        */
-
-        x =
-            Math.max(
-                4,
-                Math.min(
-                    96,
-                    x
-                )
-            );
-
-
-        const y =
-            6 +
-            (i + 1) *
-            8.8;
-
-
-        posicionarBola(
-            x,
-            y
-        );
-
-
-        await esperar(
-            115
-        );
-
-    }
-
-
-    /*
-        Posição final.
-
-        Converte o resultado
-        para uma das 9 caixas.
-    */
-
-    const largura =
-        100 /
-        multiplicadores.length;
-
-
-    const destinoX =
-        resultadoFinal *
-        largura +
-        largura / 2;
-
-
-    const destinoY =
-        96;
-
-
-    posicionarBola(
-        destinoX,
-        destinoY
-    );
-
-
-    await esperar(
-        350
-    );
-
-
-    /*
-        Esconde a bola.
-    */
-
-    plinkoBall.style.opacity =
-        "0";
-
-}
-
-
-/* =========================================================
-   GERAR CAMINHO
-   ========================================================= */
-
-function gerarCaminho() {
-
-    /*
-        Escolhe primeiro qual casa a bola vai atingir.
-
-        Quanto maior o peso, maior a chance.
-        O centro é propositalmente muito raro.
-
-        Índices:
-
-        0 = 0.2x
-        1 = 0.5x
-        2 = 0.7x
-        3 = 1x
-        4 = 5x
-        5 = 1x
-        6 = 0.7x
-        7 = 0.5x
-        8 = 0.2x
-    */
-
-    const pesos = [
-
-        14, // 0.2x
-        13, // 0.5x
-        12, // 0.7x
-        8,  // 1x
-        4,  // 5x
-        8,  // 1x
-        12, // 0.7x
-        13, // 0.5x
-        14  // 0.2x
-
-    ];
-
-
-    const total =
-        pesos.reduce(
-            (soma, peso) =>
-                soma + peso,
-            0
-        );
-
-
-    let sorteio =
-        Math.random() * total;
-
-
-    let resultado =
-        0;
-
-
-    for (
-        let i = 0;
-        i < pesos.length;
-        i++
-    ) {
-
-        sorteio -=
-            pesos[i];
-
-
-        if (
-            sorteio <= 0
-        ) {
-
-            resultado = i;
-
-            break;
-
-        }
-
-    }
-
-
-    /*
-        A quantidade de movimentos para a direita
-        determina a posição final.
-
-        Como existem 10 linhas, usamos:
-
-        casa 0 → 1 movimento direita
-        casa 1 → 2
-        ...
-        casa 8 → 9
-    */
-
-    const quantidadeDireita =
-        resultado + 1;
-
-
-    const caminho = [];
-
-
-    /*
-        Adiciona exatamente a quantidade
-        necessária de movimentos para a direita.
-    */
-
-    for (
-        let i = 0;
-        i < quantidadeDireita;
-        i++
-    ) {
-
-        caminho.push(
-            "direita"
-        );
-
-    }
-
-
-    /*
-        Completa o restante com movimentos
-        para a esquerda.
-    */
-
-    while (
-        caminho.length < LINHAS
-    ) {
-
-        caminho.push(
-            "esquerda"
-        );
-
-    }
-
-
-    /*
-        Embaralha o caminho para a trajetória
-        continuar parecendo aleatória.
-    */
-
-    for (
-        let i = caminho.length - 1;
-        i > 0;
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random() *
-                (i + 1)
-            );
-
-
-        [
-            caminho[i],
-            caminho[j]
-        ] = [
-            caminho[j],
-            caminho[i]
-        ];
-
-    }
-
-
-    return caminho;
-
-}
-
-
-/* =========================================================
-   GERAR RESULTADO
-   ========================================================= */
-
-function obterResultado(caminho) {
-
-    let direita = 0;
-
-
-    caminho.forEach(
-        direcao => {
-
-            if (
-                direcao === "direita"
-            ) {
-
-                direita++;
-
-            }
-
-        }
-    );
-
-
-    /*
-        Converte a quantidade de movimentos
-        para a casa de destino.
-
-        1 direita  = casa 0
-        2 direitas = casa 1
-        ...
-        9 direitas = casa 8
-    */
-
-    let resultado =
-        direita - 1;
-
-
-    resultado =
-        Math.max(
-            0,
-            Math.min(
-                8,
-                resultado
-            )
-        );
-
-
-    return resultado;
-
-}
-
-
-/* =========================================================
-   REMOVER DESTAQUE
+   LIMPAR MULTIPLICADORES
    ========================================================= */
 
 function limparMultiplicadores() {
 
     multiplierElements.forEach(
-        element => {
+        function (element) {
 
             element.classList.remove(
                 "active"
@@ -725,7 +708,7 @@ function limparMultiplicadores() {
 
 
 /* =========================================================
-   DESTACAR PRÊMIO
+   DESTACAR MULTIPLICADOR
    ========================================================= */
 
 function destacarMultiplicador(
@@ -778,6 +761,630 @@ function mostrarMensagem(
 
 
 /* =========================================================
+   COLISÃO COM PINO
+   ========================================================= */
+
+function verificarColisoes(
+    bola
+) {
+
+    for (
+        const peg of pegsFisicos
+    ) {
+
+        const dx =
+            bola.x -
+            peg.x;
+
+
+        const dy =
+            bola.y -
+            peg.y;
+
+
+        const distancia =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        const distanciaMinima =
+            RAIO_BOLA +
+            peg.raio;
+
+
+        /*
+            Não houve colisão.
+        */
+
+        if (
+            distancia >=
+            distanciaMinima
+        ) {
+
+            continue;
+
+        }
+
+
+        /*
+            Evita divisão por zero
+            caso a bola esteja exatamente
+            no centro do pino.
+        */
+
+        let normalX =
+            dx /
+            (distancia || 1);
+
+
+        let normalY =
+            dy /
+            (distancia || 1);
+
+
+        /*
+            Empurra a bola para fora do pino.
+
+            Isso evita que ela fique presa
+            dentro da colisão.
+        */
+
+        const penetracao =
+            distanciaMinima -
+            distancia;
+
+
+        bola.x +=
+            normalX *
+            penetracao;
+
+
+        bola.y +=
+            normalY *
+            penetracao;
+
+
+        /*
+            Calcula a velocidade na direção
+            do pino.
+        */
+
+        const velocidadeNormal =
+            bola.vx *
+            normalX +
+            bola.vy *
+            normalY;
+
+
+        /*
+            Só rebate se estiver indo em
+            direção ao pino.
+
+            Isso evita múltiplos rebotes
+            desnecessários.
+        */
+
+        if (
+            velocidadeNormal < 0
+        ) {
+
+            bola.vx -=
+                (
+                    1 +
+                    RESTITUICAO
+                ) *
+                velocidadeNormal *
+                normalX;
+
+
+            bola.vy -=
+                (
+                    1 +
+                    RESTITUICAO
+                ) *
+                velocidadeNormal *
+                normalY;
+
+        }
+
+
+        /*
+            Pequena perda de velocidade
+            horizontal.
+        */
+
+        bola.vx *=
+            ATRITO_COLISAO;
+
+
+        /*
+            Aleatoriedade.
+
+            O jogador escolhe a posição,
+            mas nunca consegue prever
+            exatamente todos os impactos.
+        */
+
+        bola.vx +=
+            (
+                Math.random() -
+                0.5
+            ) *
+            2 *
+            ALEATORIEDADE_COLISAO;
+
+
+        /*
+            Garante que a bola continue
+            descendo razoavelmente.
+        */
+
+        if (
+            bola.vy <
+            VELOCIDADE_MINIMA_DESCIDA
+        ) {
+
+            bola.vy =
+                VELOCIDADE_MINIMA_DESCIDA;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   LIMITAR VELOCIDADE
+   ========================================================= */
+
+function limitarVelocidade(
+    bola
+) {
+
+    const velocidade =
+        Math.sqrt(
+            bola.vx * bola.vx +
+            bola.vy * bola.vy
+        );
+
+
+    if (
+        velocidade <=
+        VELOCIDADE_MAXIMA
+    ) {
+
+        return;
+
+    }
+
+
+    const fator =
+        VELOCIDADE_MAXIMA /
+        velocidade;
+
+
+    bola.vx *=
+        fator;
+
+
+    bola.vy *=
+        fator;
+
+}
+
+
+/* =========================================================
+   COLISÃO COM AS PAREDES
+   ========================================================= */
+
+function verificarParedes(
+    bola,
+    largura,
+    altura
+) {
+
+    /*
+        Parede esquerda.
+    */
+
+    if (
+        bola.x <
+        RAIO_BOLA
+    ) {
+
+        bola.x =
+            RAIO_BOLA;
+
+
+        bola.vx =
+            Math.abs(
+                bola.vx
+            ) *
+            RESTITUICAO;
+
+    }
+
+
+    /*
+        Parede direita.
+    */
+
+    if (
+        bola.x >
+        largura -
+        RAIO_BOLA
+    ) {
+
+        bola.x =
+            largura -
+            RAIO_BOLA;
+
+
+        bola.vx =
+            -Math.abs(
+                bola.vx
+            ) *
+            RESTITUICAO;
+
+    }
+
+
+    /*
+        Não deixa a bola parar completamente
+        na horizontal.
+    */
+
+    if (
+        Math.abs(
+            bola.vx
+        ) < 5
+    ) {
+
+        bola.vx +=
+            (
+                Math.random() -
+                0.5
+            ) *
+            10;
+
+    }
+
+
+    /*
+        Parede inferior.
+
+        Quando chegar aqui, consideramos
+        que encontrou uma casa final.
+    */
+
+    if (
+        bola.y >
+        altura -
+        RAIO_BOLA
+    ) {
+
+        bola.y =
+            altura -
+            RAIO_BOLA;
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+/* =========================================================
+   DETERMINAR CASA FINAL
+   ========================================================= */
+
+function obterResultadoPorX(
+    x,
+    largura
+) {
+
+    /*
+        Divide o tabuleiro em nove regiões.
+    */
+
+    const larguraCasa =
+        largura /
+        multiplicadores.length;
+
+
+    let resultado =
+        Math.floor(
+            x /
+            larguraCasa
+        );
+
+
+    resultado =
+        Math.max(
+            0,
+            Math.min(
+                multiplicadores.length - 1,
+                resultado
+            )
+        );
+
+
+    return resultado;
+
+}
+
+
+/* =========================================================
+   ANIMAÇÃO FÍSICA
+   ========================================================= */
+
+function animarBolaFisica() {
+
+    return new Promise(
+        function (resolve) {
+
+            const rect =
+                boardFrame.getBoundingClientRect();
+
+
+            const largura =
+                rect.width;
+
+
+            const altura =
+                rect.height;
+
+
+            /*
+                Converte a posição escolhida
+                em pixels.
+            */
+
+            const xInicial =
+                (
+                    posicaoEscolhida /
+                    100
+                ) *
+                largura;
+
+
+            /*
+                Estado físico da bola.
+            */
+
+            const bola = {
+
+                x:
+                    xInicial,
+
+                y:
+                    RAIO_BOLA + 2,
+
+                vx:
+                    (
+                        Math.random() -
+                        0.5
+                    ) *
+                    VARIACAO_INICIAL_X,
+
+                vy:
+                    VELOCIDADE_INICIAL_Y
+
+            };
+
+
+            plinkoBall.style.opacity =
+                "1";
+
+
+            /*
+                Desativa o marcador durante
+                a queda.
+            */
+
+            if (
+                marcadorLancamento
+            ) {
+
+                marcadorLancamento.style.opacity =
+                    "0";
+
+            }
+
+
+            let ultimoTempo =
+                performance.now();
+
+
+            function atualizar(
+                tempoAtual
+            ) {
+
+                /*
+                    Delta time.
+
+                    Limitamos para evitar que
+                    uma aba congelada cause um
+                    salto enorme.
+                */
+
+                let delta =
+                    (
+                        tempoAtual -
+                        ultimoTempo
+                    ) /
+                    1000;
+
+
+                delta =
+                    Math.min(
+                        delta,
+                        0.033
+                    );
+
+
+                ultimoTempo =
+                    tempoAtual;
+
+
+                const dt =
+                    delta /
+                    SUBPASSOS_FISICA;
+
+
+                let chegouAoFinal =
+                    false;
+
+
+                /*
+                    Executa vários pequenos passos
+                    por frame para melhorar a precisão.
+                */
+
+                for (
+                    let passo = 0;
+                    passo < SUBPASSOS_FISICA;
+                    passo++
+                ) {
+
+                    /*
+                        Gravidade.
+                    */
+
+                    bola.vy +=
+                        GRAVIDADE *
+                        dt;
+
+
+                    /*
+                        Movimento.
+                    */
+
+                    bola.x +=
+                        bola.vx *
+                        dt;
+
+
+                    bola.y +=
+                        bola.vy *
+                        dt;
+
+
+                    /*
+                        Colisões.
+                    */
+
+                    verificarColisoes(
+                        bola
+                    );
+
+
+                    /*
+                        Paredes.
+                    */
+
+                    if (
+                        verificarParedes(
+                            bola,
+                            largura,
+                            altura
+                        )
+                    ) {
+
+                        chegouAoFinal =
+                            true;
+
+                        break;
+
+                    }
+
+
+                    /*
+                        Limita a velocidade.
+                    */
+
+                    limitarVelocidade(
+                        bola
+                    );
+
+                }
+
+
+                /*
+                    Atualiza visual.
+                */
+
+                posicionarBola(
+                    bola.x,
+                    bola.y
+                );
+
+
+                /*
+                    Chegou no fundo.
+                */
+
+                if (
+                    chegouAoFinal
+                ) {
+
+                    const resultado =
+                        obterResultadoPorX(
+                            bola.x,
+                            largura
+                        );
+
+
+                    /*
+                        Pequena pausa visual
+                        antes de finalizar.
+                    */
+
+                    setTimeout(
+                        function () {
+
+                            plinkoBall.style.opacity =
+                                "0";
+
+
+                            resolve(
+                                resultado
+                            );
+
+                        },
+                        180
+                    );
+
+
+                    return;
+
+                }
+
+
+                requestAnimationFrame(
+                    atualizar
+                );
+
+            }
+
+
+            requestAnimationFrame(
+                atualizar
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
    SOLTAR BOLA
    ========================================================= */
 
@@ -788,8 +1395,26 @@ async function soltarBola() {
     */
 
     if (
-        dropButton.disabled
+        bolaEmMovimento
     ) {
+
+        return;
+
+    }
+
+
+    /*
+        Exige que o jogador escolha
+        uma posição.
+    */
+
+    if (
+        posicaoEscolhida === null
+    ) {
+
+        mostrarMensagem(
+            "CLIQUE NO TABULEIRO PARA ESCOLHER ONDE A BOLA VAI CAIR!"
+        );
 
         return;
 
@@ -804,7 +1429,9 @@ async function soltarBola() {
         obterAposta();
 
 
-    if (aposta < 1) {
+    if (
+        aposta < 1
+    ) {
 
         mostrarMensagem(
             "DIGITE UMA APOSTA VÁLIDA!"
@@ -853,14 +1480,25 @@ async function soltarBola() {
        BLOQUEAR CONTROLES
        ===================================================== */
 
+    bolaEmMovimento =
+        true;
+
+
     dropButton.disabled =
         true;
+
 
     maxBetButton.disabled =
         true;
 
+
     betInput.disabled =
         true;
+
+
+    boardFrame.classList.add(
+        "ball-dropping"
+    );
 
 
     limparMultiplicadores();
@@ -872,27 +1510,11 @@ async function soltarBola() {
 
 
     /* =====================================================
-       GERAR CAMINHO
+       FÍSICA
        ===================================================== */
-
-    const caminho =
-        gerarCaminho();
-
 
     const resultado =
-        obterResultado(
-            caminho
-        );
-
-
-    /* =====================================================
-       ANIMAR
-       ===================================================== */
-
-    await animarBola(
-        caminho,
-        resultado
-    );
+        await animarBolaFisica();
 
 
     /* =====================================================
@@ -933,47 +1555,58 @@ async function soltarBola() {
        PAGAMENTO
        ===================================================== */
 
+    goldAmount +=
+        premio;
+
+
+    salvarSaldo();
+
+    atualizarSaldo();
+
+
+    /* =====================================================
+       MENSAGEM
+       ===================================================== */
+
     if (
-        premio > 0
+        multiplicador === 5
     ) {
 
-        goldAmount +=
-            premio;
+        mostrarMensagem(
+            `JACKPOT! A BOLA PAROU EM 5x! +${premio.toLocaleString("pt-BR")} ◆`,
+            "jackpot"
+        );
 
+    }
 
-        salvarSaldo();
+    else if (
+        multiplicador >= 1.5
+    ) {
 
-        atualizarSaldo();
+        mostrarMensagem(
+            `BOA! A BOLA PAROU EM ${multiplicador}x! +${premio.toLocaleString("pt-BR")} ◆`,
+            "win"
+        );
 
+    }
 
-        /*
-            JACKPOT
-        */
+    else if (
+        multiplicador === 1
+    ) {
 
-        if (
-            multiplicador === 10
-        ) {
+        mostrarMensagem(
+            `A BOLA PAROU EM 1x! VOCÊ RECUPEROU SUA APOSTA.`,
+            "win"
+        );
 
-            mostrarMensagem(
-                `JACKPOT! +${premio.toLocaleString("pt-BR")} ◆`,
-                "jackpot"
-            );
+    }
 
-        }
+    else {
 
-
-        /*
-            PRÊMIO NORMAL
-        */
-
-        else {
-
-            mostrarMensagem(
-                `A BOLA PAROU EM ${multiplicador}x! +${premio.toLocaleString("pt-BR")} ◆`,
-                "win"
-            );
-
-        }
+        mostrarMensagem(
+            `A BOLA PAROU EM ${multiplicador}x! +${premio.toLocaleString("pt-BR")} ◆`,
+            "loss"
+        );
 
     }
 
@@ -995,11 +1628,6 @@ async function soltarBola() {
         atualizarSaldo();
 
 
-        /*
-            Pequeno atraso para mostrar
-            o resultado antes de sair.
-        */
-
         setTimeout(
             function () {
 
@@ -1017,17 +1645,47 @@ async function soltarBola() {
 
 
     /* =====================================================
-       LIBERAR CONTROLES
+       FINALIZAR RODADA
        ===================================================== */
+
+    bolaEmMovimento =
+        false;
+
+
+    boardFrame.classList.remove(
+        "ball-dropping"
+    );
+
 
     dropButton.disabled =
         false;
 
+
     maxBetButton.disabled =
         false;
 
+
     betInput.disabled =
         false;
+
+
+    /*
+        Obriga o jogador a escolher
+        uma nova posição para a próxima bola.
+    */
+
+    posicaoEscolhida =
+        null;
+
+
+    if (
+        marcadorLancamento
+    ) {
+
+        marcadorLancamento.style.opacity =
+            "0";
+
+    }
 
 }
 
@@ -1120,12 +1778,15 @@ function verificarFalencia() {
         goldAmount =
             0;
 
+
         salvarSaldo();
 
         atualizarSaldo();
 
+
         window.location.href =
             "index.html?falido=1";
+
 
         return true;
 
@@ -1135,6 +1796,31 @@ function verificarFalencia() {
     return false;
 
 }
+
+
+/* =========================================================
+   RESPONSIVIDADE DA FÍSICA
+   ========================================================= */
+
+/*
+    Quando a janela muda de tamanho,
+    recalcula as posições dos pinos.
+*/
+
+window.addEventListener(
+    "resize",
+    function () {
+
+        if (
+            !bolaEmMovimento
+        ) {
+
+            atualizarFisicaDosPinos();
+
+        }
+
+    }
+);
 
 
 /* =========================================================

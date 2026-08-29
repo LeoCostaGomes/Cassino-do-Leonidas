@@ -4,6 +4,66 @@
 
 
 /* =========================================================
+   CONFIGURAÇÕES DE BALANCEAMENTO
+   ========================================================= */
+
+/*
+    VELOCIDADE_GIRO_MS
+
+    Controla a velocidade com que os símbolos mudam.
+
+    Quanto MENOR o valor:
+        → mais rápido
+        → mais difícil clicar no símbolo desejado
+
+    Quanto MAIOR o valor:
+        → mais lento
+        → mais fácil clicar
+
+    Recomendações:
+
+    60  = extremamente rápido
+    70  = rápido
+    80  = rápido / recomendado
+    90  = médio
+    100 = mais fácil
+    120 = lento
+
+    O valor abaixo é o recomendado para começar.
+*/
+
+const VELOCIDADE_GIRO_MS = 100;
+
+
+/*
+    Caso queira deixar cada rolo ligeiramente diferente,
+    você pode ativar esta opção.
+
+    false = todos os rolos usam a mesma velocidade
+    true  = cada rolo possui uma pequena variação
+*/
+
+const VARIAR_VELOCIDADE_ROLOS = false;
+
+
+/*
+    Variação máxima de velocidade em milissegundos.
+
+    Exemplo:
+
+    VELOCIDADE_GIRO_MS = 80
+    VARIACAO = 10
+
+    Um rolo poderá girar a:
+        70 ms
+        80 ms
+        90 ms
+*/
+
+const VARIACAO_VELOCIDADE_MS = 10;
+
+
+/* =========================================================
    ELEMENTOS DA PÁGINA
    ========================================================= */
 
@@ -36,30 +96,11 @@ const reels = [
    SISTEMA DE PEPITAS
    ========================================================= */
 
-/*
-    A chave "goldAmount" é a mesma usada pela loja
-    e pela tela inicial.
-
-    Portanto:
-
-    index.html
-          ↕
-    goldAmount
-          ↕
-    loja.html
-          ↕
-    cacaniquel.html
-*/
-
 function obterSaldo() {
 
     const saldoSalvo =
         localStorage.getItem("goldAmount");
 
-
-    /*
-        Primeiro acesso do jogador.
-    */
 
     if (saldoSalvo === null) {
 
@@ -73,18 +114,9 @@ function obterSaldo() {
     }
 
 
-    /*
-        Converte o valor armazenado
-        para número.
-    */
-
     const saldo =
         Number(saldoSalvo);
 
-
-    /*
-        Corrige valores inválidos.
-    */
 
     if (!Number.isFinite(saldo)) {
 
@@ -102,10 +134,6 @@ function obterSaldo() {
 
 }
 
-
-/*
-    Saldo atual do jogador.
-*/
 
 let goldAmount =
     obterSaldo();
@@ -126,7 +154,7 @@ function salvarSaldo() {
 
 
 /* =========================================================
-   ATUALIZAR SALDO NA INTERFACE
+   ATUALIZAR SALDO
    ========================================================= */
 
 function atualizarSaldo() {
@@ -142,18 +170,26 @@ function atualizarSaldo() {
    ========================================================= */
 
 /*
-    premio:
+    peso:
 
-    Representa quantas vezes a aposta será multiplicada
-    caso apareçam 3 símbolos iguais.
+    Quanto maior o peso, maior a frequência do símbolo.
 
-    Exemplo:
+    O peso foi calculado de forma inversamente proporcional
+    ao multiplicador.
 
-    aposta = 25
+    x20 → 1/20
+    x10 → 1/10
+    x7  → 1/7
+    x5  → 1/5
+    x4  → 1/4
+    x3  → 1/3
 
-    7 7 7
+    Portanto:
 
-    25 × 20 = 500
+        maior prêmio = menor frequência
+        menor prêmio = maior frequência
+
+    Para balancear manualmente, basta alterar os pesos aqui.
 */
 
 const simbolos = [
@@ -161,37 +197,43 @@ const simbolos = [
     {
         id: "sete",
         visual: "7",
-        premio: 20
+        premio: 20,
+        peso: 1 / 20
     },
 
     {
         id: "diamante",
         visual: "◆",
-        premio: 10
+        premio: 10,
+        peso: 1 / 10
     },
 
     {
         id: "trevo",
         visual: "🍀",
-        premio: 7
+        premio: 7,
+        peso: 1 / 7
     },
 
     {
         id: "cereja",
         visual: "🍒",
-        premio: 5
+        premio: 5,
+        peso: 1 / 5
     },
 
     {
         id: "sino",
         visual: "🔔",
-        premio: 4
+        premio: 4,
+        peso: 1 / 4
     },
 
     {
         id: "moeda",
         visual: "●",
-        premio: 3
+        premio: 3,
+        peso: 1 / 3
     }
 
 ];
@@ -202,19 +244,64 @@ const simbolos = [
     o jogador recebe 1.5x a aposta.
 */
 
-const DOIS_IGUAIS =
-    1.5;
+const DOIS_IGUAIS = 1.5;
 
 
 /* =========================================================
-   APOSTA
+   ESTADO DOS ROLOS
    ========================================================= */
+
+/*
+    Cada rolo possui:
+
+        simbolo
+        intervalo
+        girando
+        indice
+*/
+
+const estadoRolos = reels.map(
+    function () {
+
+        return {
+
+            simbolo: null,
+
+            intervalo: null,
+
+            girando: false,
+
+            indice: -1
+
+        };
+
+    }
+);
+
+
+/*
+    Indica se existe uma rodada em andamento.
+*/
+
+let rodadaAtiva = false;
+
+
+/*
+    Quantos rolos já foram parados.
+*/
+
+let quantidadeRolosParados = 0;
+
+
+/*
+    Guarda a aposta atual.
+*/
 
 let aposta = 25;
 
 
 /* =========================================================
-   OBTER APOSTA DIGITADA
+   APOSTA
    ========================================================= */
 
 function obterAposta() {
@@ -225,10 +312,6 @@ function obterAposta() {
         );
 
 
-    /*
-        Impede valores inválidos.
-    */
-
     if (
         !Number.isFinite(valor) ||
         valor < 1
@@ -238,10 +321,6 @@ function obterAposta() {
 
     }
 
-
-    /*
-        Apenas números inteiros são aceitos.
-    */
 
     return Math.floor(valor);
 
@@ -256,10 +335,10 @@ maxBetButton.addEventListener(
     "click",
     function () {
 
-        /*
-            Coloca todo o saldo atual
-            no campo de aposta.
-        */
+        if (rodadaAtiva) {
+            return;
+        }
+
 
         betInput.value =
             Math.floor(goldAmount);
@@ -272,241 +351,287 @@ maxBetButton.addEventListener(
 
 
 /* =========================================================
-   GERAR SÍMBOLO ALEATÓRIO
+   SÍMBOLO ALEATÓRIO COM PESO
    ========================================================= */
 
 function obterSimboloAleatorio() {
 
-    const indice =
+    /*
+        Soma todos os pesos.
+    */
+
+    const pesoTotal =
+        simbolos.reduce(
+            function (total, simbolo) {
+
+                return total + simbolo.peso;
+
+            },
+            0
+        );
+
+
+    /*
+        Escolhe um ponto aleatório
+        dentro do peso total.
+    */
+
+    let valorAleatorio =
+        Math.random() * pesoTotal;
+
+
+    /*
+        Percorre os símbolos
+        até encontrar o intervalo.
+    */
+
+    for (const simbolo of simbolos) {
+
+        valorAleatorio -=
+            simbolo.peso;
+
+
+        if (valorAleatorio <= 0) {
+
+            return simbolo;
+
+        }
+
+    }
+
+
+    /*
+        Segurança.
+    */
+
+    return simbolos[simbolos.length - 1];
+
+}
+
+
+/* =========================================================
+   VELOCIDADE DO ROLO
+   ========================================================= */
+
+function obterVelocidadeDoRolo(indice) {
+
+    if (!VARIAR_VELOCIDADE_ROLOS) {
+
+        return VELOCIDADE_GIRO_MS;
+
+    }
+
+
+    const variacao =
         Math.floor(
             Math.random() *
-            simbolos.length
-        );
+            (
+                VARIACAO_VELOCIDADE_MS * 2 + 1
+            )
+        ) -
+        VARIACAO_VELOCIDADE_MS;
 
 
-    return simbolos[indice];
-
-}
-
-
-/* =========================================================
-   ANIMAR ROLO
-   ========================================================= */
-
-function animarReel(
-    reel,
-    duracao
-) {
-
-    return new Promise(
-        resolve => {
-
-            /*
-                Enquanto o rolo estiver girando,
-                os símbolos são trocados rapidamente.
-            */
-
-            const intervalo =
-                setInterval(
-                    function () {
-
-                        const simbolo =
-                            obterSimboloAleatorio();
-
-
-                        const symbolElement =
-                            reel.querySelector(
-                                ".symbol"
-                            );
-
-
-                        symbolElement.textContent =
-                            simbolo.visual;
-
-                    },
-                    80
-                );
-
-
-            /*
-                Para o rolo depois da duração.
-            */
-
-            setTimeout(
-                function () {
-
-                    clearInterval(
-                        intervalo
-                    );
-
-
-                    /*
-                        Define o resultado final.
-                    */
-
-                    const resultado =
-                        obterSimboloAleatorio();
-
-
-                    resolve(
-                        resultado
-                    );
-
-                },
-                duracao
-            );
-
-        }
+    return Math.max(
+        20,
+        VELOCIDADE_GIRO_MS + variacao
     );
 
 }
 
 
 /* =========================================================
-   MOSTRAR RESULTADO NOS ROLOS
+   MOSTRAR SÍMBOLO NO ROLO
    ========================================================= */
 
-function mostrarSimbolos(
-    resultado
+function mostrarSimboloNoRolo(
+    indice,
+    simbolo
 ) {
 
-    resultado.forEach(
-        function (simbolo, indice) {
-
-            const symbolElement =
-                reels[indice]
-                    .querySelector(
-                        ".symbol"
-                    );
+    const symbolElement =
+        reels[indice].querySelector(".symbol");
 
 
-            symbolElement.textContent =
-                simbolo.visual;
-
-        }
-    );
+    symbolElement.textContent =
+        simbolo.visual;
 
 }
 
 
 /* =========================================================
-   CALCULAR PRÊMIO
+   GIRAR UM ROLO
    ========================================================= */
 
-function calcularPremio(
-    resultado
-) {
+function iniciarRolo(indice) {
 
-    const primeiro =
-        resultado[0];
-
-    const segundo =
-        resultado[1];
-
-    const terceiro =
-        resultado[2];
-
-
-    /* =====================================================
-       3 SÍMBOLOS IGUAIS
-       ===================================================== */
-
-    if (
-        primeiro.id === segundo.id &&
-        segundo.id === terceiro.id
-    ) {
-
-        return aposta * primeiro.premio;
-
-    }
-
-
-    /* =====================================================
-       2 SÍMBOLOS IGUAIS
-       ===================================================== */
-
-    if (
-        primeiro.id === segundo.id ||
-        primeiro.id === terceiro.id ||
-        segundo.id === terceiro.id
-    ) {
-
-        return Math.floor(
-            aposta * DOIS_IGUAIS
-        );
-
-    }
-
-
-    /* =====================================================
-       NENHUM PRÊMIO
-       ===================================================== */
-
-    return 0;
-
-}
-
-
-/* =========================================================
-   MOSTRAR MENSAGEM
-   ========================================================= */
-
-function mostrarMensagem(
-    texto,
-    tipo = ""
-) {
-
-    resultMessage.textContent =
-        texto;
+    const estado =
+        estadoRolos[indice];
 
 
     /*
-        Remove classes anteriores.
+        Impede iniciar o mesmo rolo duas vezes.
     */
 
-    resultMessage.className =
-        "result-message";
-
-
-    /*
-        Adiciona a classe atual.
-    */
-
-    if (tipo !== "") {
-
-        resultMessage.classList.add(
-            tipo
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   GIRAR CAÇA-NÍQUEL
-   ========================================================= */
-
-async function girar() {
-
-    /*
-        Impede vários giros simultâneos.
-    */
-
-    if (spinButton.disabled) {
+    if (estado.girando) {
 
         return;
 
     }
 
 
-    /* =====================================================
-       VERIFICAR APOSTA
-       ===================================================== */
+    estado.girando = true;
+
+
+    /*
+        Símbolo inicial.
+    */
+
+    estado.simbolo =
+        obterSimboloAleatorio();
+
+
+    mostrarSimboloNoRolo(
+        indice,
+        estado.simbolo
+    );
+
+
+    /*
+        Define velocidade deste rolo.
+    */
+
+    const velocidade =
+        obterVelocidadeDoRolo(indice);
+
+
+    /*
+        Troca os símbolos continuamente.
+    */
+
+    estado.intervalo =
+        setInterval(
+            function () {
+
+                if (!estado.girando) {
+                    return;
+                }
+
+
+                estado.simbolo =
+                    obterSimboloAleatorio();
+
+
+                mostrarSimboloNoRolo(
+                    indice,
+                    estado.simbolo
+                );
+
+            },
+            velocidade
+        );
+
+
+    /*
+        Marca visualmente que está girando.
+    */
+
+    reels[indice].classList.add(
+        "spinning"
+    );
+
+    reels[indice].classList.remove(
+        "stopped"
+    );
+
+}
+
+
+/* =========================================================
+   PARAR UM ROLO
+   ========================================================= */
+
+function pararRolo(indice) {
+
+    const estado =
+        estadoRolos[indice];
+
+
+    /*
+        Não faz nada se o rolo
+        já estiver parado.
+    */
+
+    if (!estado.girando) {
+
+        return;
+
+    }
+
+
+    /*
+        Para o intervalo.
+    */
+
+    clearInterval(
+        estado.intervalo
+    );
+
+
+    estado.intervalo =
+        null;
+
+
+    estado.girando =
+        false;
+
+
+    quantidadeRolosParados++;
+
+
+    /*
+        Remove o estado visual de giro.
+    */
+
+    reels[indice].classList.remove(
+        "spinning"
+    );
+
+    reels[indice].classList.add(
+        "stopped"
+    );
+
+
+    /*
+        Verifica se todos
+        os rolos foram parados.
+    */
+
+    if (
+        quantidadeRolosParados ===
+        reels.length
+    ) {
+
+        finalizarRodada();
+
+    }
+
+}
+
+
+/* =========================================================
+   INICIAR RODADA
+   ========================================================= */
+
+function iniciarRodada() {
 
     aposta =
         obterAposta();
 
+
+    /*
+        Aposta inválida.
+    */
 
     if (aposta < 1) {
 
@@ -521,9 +646,9 @@ async function girar() {
     }
 
 
-    /* =====================================================
-       VERIFICAR SALDO
-       ===================================================== */
+    /*
+        Saldo insuficiente.
+    */
 
     if (aposta > goldAmount) {
 
@@ -538,21 +663,29 @@ async function girar() {
     }
 
 
-    /* =====================================================
-       DESCONTAR APOSTA
-       ===================================================== */
+    /*
+        Desconta a aposta.
+    */
 
     goldAmount -= aposta;
 
 
     salvarSaldo();
-
     atualizarSaldo();
 
 
-    /* =====================================================
-       BLOQUEAR CONTROLES
-       ===================================================== */
+    /*
+        Inicia estado da rodada.
+    */
+
+    rodadaAtiva = true;
+
+    quantidadeRolosParados = 0;
+
+
+    /*
+        Desabilita controles gerais.
+    */
 
     spinButton.disabled = true;
 
@@ -561,50 +694,57 @@ async function girar() {
     betInput.disabled = true;
 
 
+    /*
+        Atualiza mensagem.
+    */
+
     mostrarMensagem(
-        "OS ROLOS ESTÃO GIRANDO..."
+        "CLIQUE NOS ROLOS PARA PARÁ-LOS!"
     );
 
 
-    /* =====================================================
-       GIRAR OS 3 ROLOS
-       ===================================================== */
+    /*
+        Inicia os três rolos.
+    */
+
+    reels.forEach(
+        function (_, indice) {
+
+            iniciarRolo(indice);
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FINALIZAR RODADA
+   ========================================================= */
+
+function finalizarRodada() {
+
+    rodadaAtiva = false;
+
+
+    /*
+        Monta o resultado final
+        usando os símbolos onde os rolos pararam.
+    */
 
     const resultados =
-        await Promise.all(
-            [
+        estadoRolos.map(
+            function (estado) {
 
-                animarReel(
-                    reels[0],
-                    900
-                ),
+                return estado.simbolo;
 
-                animarReel(
-                    reels[1],
-                    1250
-                ),
-
-                animarReel(
-                    reels[2],
-                    1600
-                )
-
-            ]
+            }
         );
 
 
-    /* =====================================================
-       MOSTRAR RESULTADO
-       ===================================================== */
-
-    mostrarSimbolos(
-        resultados
-    );
-
-
-    /* =====================================================
-       CALCULAR PRÊMIO
-       ===================================================== */
+    /*
+        Calcula prêmio.
+    */
 
     const premio =
         calcularPremio(
@@ -612,17 +752,17 @@ async function girar() {
         );
 
 
-    /* =====================================================
-       ATUALIZAR ÚLTIMO PRÊMIO
-       ===================================================== */
+    /*
+        Mostra último prêmio.
+    */
 
     lastWinElement.textContent =
         `Último prêmio: ${premio.toLocaleString("pt-BR")} ◆`;
 
 
-    /* =====================================================
-       JOGADOR GANHOU
-       ===================================================== */
+    /*
+        Jogador ganhou.
+    */
 
     if (premio > 0) {
 
@@ -630,13 +770,12 @@ async function girar() {
 
 
         salvarSaldo();
-
         atualizarSaldo();
 
 
-        /* =================================================
-           JACKPOT
-           ================================================= */
+        /*
+            JACKPOT
+        */
 
         if (
             resultados[0].id === "sete" &&
@@ -664,10 +803,6 @@ async function girar() {
 
     else {
 
-        /* =================================================
-           SEM PRÊMIO
-           ================================================= */
-
         mostrarMensagem(
             "NÃO FOI DESSA VEZ...",
             "loss"
@@ -676,17 +811,9 @@ async function girar() {
     }
 
 
-    /* =====================================================
-       VERIFICAR FALÊNCIA
-       ===================================================== */
-
     /*
-        Só considera falência depois de calcular
-        qualquer prêmio do giro.
-
-        Dessa maneira, se o jogador apostar seu
-        último valor e ganhar, ele não será enviado
-        para a tela de falência.
+        Verifica falência depois
+        de contabilizar o prêmio.
     */
 
     if (goldAmount <= 0) {
@@ -695,14 +822,8 @@ async function girar() {
 
 
         salvarSaldo();
-
         atualizarSaldo();
 
-
-        /*
-            Pequeno atraso para mostrar o resultado
-            do último giro.
-        */
 
         setTimeout(
             function () {
@@ -720,9 +841,9 @@ async function girar() {
     }
 
 
-    /* =====================================================
-       LIBERAR CONTROLES
-       ===================================================== */
+    /*
+        Libera os controles.
+    */
 
     spinButton.disabled = false;
 
@@ -732,45 +853,220 @@ async function girar() {
 
 }
 
+
 /* =========================================================
-   VERIFICAR FALÊNCIA
+   CALCULAR PRÊMIO
    ========================================================= */
 
-function verificarFalencia() {
+function calcularPremio(resultado) {
 
-    if (goldAmount <= 0) {
+    const primeiro =
+        resultado[0];
 
-        goldAmount = 0;
+    const segundo =
+        resultado[1];
 
-        salvarSaldo();
-        atualizarSaldo();
+    const terceiro =
+        resultado[2];
 
-        window.location.href = "index.html?falido=1";
 
-        return true;
+    /*
+        3 IGUAIS
+    */
+
+    if (
+        primeiro.id === segundo.id &&
+        segundo.id === terceiro.id
+    ) {
+
+        return Math.floor(
+            aposta *
+            primeiro.premio
+        );
+
     }
 
-    return false;
+
+    /*
+        2 IGUAIS
+    */
+
+    if (
+        primeiro.id === segundo.id ||
+        primeiro.id === terceiro.id ||
+        segundo.id === terceiro.id
+    ) {
+
+        return Math.floor(
+            aposta *
+            DOIS_IGUAIS
+        );
+
+    }
+
+
+    /*
+        NENHUM PRÊMIO
+    */
+
+    return 0;
+
 }
 
 
 /* =========================================================
-   BOTÃO GIRAR
+   MOSTRAR MENSAGEM
+   ========================================================= */
+
+function mostrarMensagem(
+    texto,
+    tipo = ""
+) {
+
+    resultMessage.textContent =
+        texto;
+
+
+    resultMessage.className =
+        "result-message";
+
+
+    if (tipo !== "") {
+
+        resultMessage.classList.add(
+            tipo
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CLIQUE NO BOTÃO GIRAR
    ========================================================= */
 
 spinButton.addEventListener(
     "click",
-    girar
+    function () {
+
+        /*
+            Caso não exista rodada,
+            começa uma nova.
+        */
+
+        if (!rodadaAtiva) {
+
+            iniciarRodada();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CLIQUE NOS ROLOS
+   ========================================================= */
+
+/*
+    Cada rolo pode ser clicado individualmente.
+
+    Exemplo:
+
+        GIRAR
+
+        [ 7 ] [ ◆ ] [ 🍒 ]
+          ↑
+        clique
+
+        [ 7 ] fica parado
+
+        os outros continuam girando
+*/
+
+reels.forEach(
+    function (reel, indice) {
+
+        reel.addEventListener(
+            "click",
+            function () {
+
+                /*
+                    Só permite parar o rolo
+                    durante uma rodada.
+                */
+
+                if (!rodadaAtiva) {
+
+                    return;
+
+                }
+
+
+                pararRolo(indice);
+
+            }
+        );
+
+
+        /*
+            Melhora a indicação de que
+            o rolo é clicável.
+        */
+
+        reel.setAttribute(
+            "role",
+            "button"
+        );
+
+        reel.setAttribute(
+            "tabindex",
+            "0"
+        );
+
+
+        /*
+            Também permite usar Enter
+            ou Espaço no rolo.
+        */
+
+        reel.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key !== "Enter" &&
+                    event.key !== " "
+                ) {
+
+                    return;
+
+                }
+
+
+                event.preventDefault();
+
+
+                if (!rodadaAtiva) {
+
+                    return;
+
+                }
+
+
+                pararRolo(indice);
+
+            }
+        );
+
+    }
 );
 
 
 /* =========================================================
    ENTER NO CAMPO DE APOSTA
    ========================================================= */
-
-/*
-    Permite apertar Enter para girar.
-*/
 
 betInput.addEventListener(
     "keydown",
@@ -780,7 +1076,11 @@ betInput.addEventListener(
             event.key === "Enter"
         ) {
 
-            girar();
+            if (!rodadaAtiva) {
+
+                iniciarRodada();
+
+            }
 
         }
 
@@ -791,11 +1091,6 @@ betInput.addEventListener(
 /* =========================================================
    SINCRONIZAÇÃO COM OUTRAS ABAS
    ========================================================= */
-
-/*
-    Caso o jogador altere o saldo em outra aba,
-    atualiza esta página automaticamente.
-*/
 
 window.addEventListener(
     "storage",
@@ -817,11 +1112,6 @@ window.addEventListener(
         atualizarSaldo();
 
 
-        /*
-            Caso o valor digitado seja maior
-            que o novo saldo, ajusta a aposta.
-        */
-
         if (
             Number(betInput.value) >
             goldAmount
@@ -837,6 +1127,31 @@ window.addEventListener(
 
 
 /* =========================================================
+   VERIFICAR FALÊNCIA
+   ========================================================= */
+
+function verificarFalencia() {
+
+    if (goldAmount <= 0) {
+
+        goldAmount = 0;
+
+        salvarSaldo();
+        atualizarSaldo();
+
+        window.location.href =
+            "index.html?falido=1";
+
+        return true;
+
+    }
+
+    return false;
+
+}
+
+
+/* =========================================================
    INICIALIZAÇÃO
    ========================================================= */
 
@@ -845,8 +1160,5 @@ atualizarSaldo();
 betInput.value =
     aposta;
 
-/* =========================================================
-VERIFICAR FALÊNCIA AO ABRIR O JOGO
-========================================================= */
 
 verificarFalencia();

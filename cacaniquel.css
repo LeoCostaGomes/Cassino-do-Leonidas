@@ -1334,3 +1334,21 @@ input[type=number] {
     }
 
 }
+
+.reel {
+    cursor: pointer;
+    user-select: none;
+}
+
+.reel.spinning {
+    cursor: crosshair;
+}
+
+.reel.stopped {
+    cursor: default;
+}
+
+.reel:focus {
+    outline: 3px solid #d4af37;
+    outline-offset: 3px;
+}
