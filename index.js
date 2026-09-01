@@ -17,45 +17,28 @@ const jogos = [
 
     {
         id: "jogo-1",
-
         nome: "Caça-níquel da Fortuna",
-
         descricao: "Gire os rolos e tente encontrar a combinação da fortuna.",
-
-        imagem: "imagens/cacaniquel.png",
-
+        icone: "🎰",
         pagina: "cacaniquel.html",
-
         multiplicador: "x20"
     },
-
     {
         id: "jogo-2",
-
         nome: "Plinko Dourado",
-
         descricao: "Solte a bola e tente acertar os maiores multiplicadores.",
-
-        imagem: "imagens/plinko.png",
-
+        icone: "✦",
         pagina: "pliko.html",
-
-        multiplicador: "x10"
+        multiplicador: "x5"
     },
-
     {
         id: "jogo-3",
-
         nome: "Higher or Lower",
-
         descricao: "Adivinhe se a próxima carta será maior ou menor e aumente seu prêmio.",
-
-        imagem: "imagens/higherlower.png",
-
+        icone: "🃏",
         pagina: "higherlower.html",
-
         multiplicador: "x12"
-    },
+    }
 
 ];
 
@@ -186,75 +169,18 @@ function criarJogo(jogo) {
     gameImage.className =
         "game-image";
 
+    const gameIcon =
+        document.createElement("div");
 
-    /*
-        Se houver imagem, mostra a imagem.
-    */
+    gameIcon.className =
+        "game-symbol";
 
-    if (jogo.imagem) {
+    gameIcon.textContent =
+        jogo.icone;
 
-        const imagem =
-            document.createElement("img");
-
-        imagem.src =
-            jogo.imagem;
-
-        imagem.alt =
-            jogo.nome;
-
-        imagem.className =
-            "game-icon";
-
-
-        /*
-            Caso a imagem não seja encontrada,
-            mostra um texto no lugar.
-        */
-
-        imagem.onerror = function () {
-
-            imagem.remove();
-
-            const placeholder =
-                document.createElement("div");
-
-            placeholder.className =
-                "game-placeholder";
-
-            placeholder.textContent =
-                "JOGO";
-
-            gameImage.appendChild(
-                placeholder
-            );
-
-        };
-
-
-        gameImage.appendChild(
-            imagem
-        );
-
-    } else {
-
-        /*
-            Caso não exista imagem cadastrada.
-        */
-
-        const placeholder =
-            document.createElement("div");
-
-        placeholder.className =
-            "game-placeholder";
-
-        placeholder.textContent =
-            "JOGO";
-
-        gameImage.appendChild(
-            placeholder
-        );
-
-    }
+    gameImage.appendChild(
+        gameIcon
+    );
 
 
     /* =====================================================

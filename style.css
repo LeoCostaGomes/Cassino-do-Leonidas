@@ -877,3 +877,25 @@ body {
     }
 
 }
+
+.game-symbol {
+    font-size: 76px;
+    line-height: 1;
+    filter:
+        drop-shadow(
+            0 0 8px
+            rgba(255, 215, 0, 0.45)
+        );
+
+    text-shadow:
+        0 0 8px
+        rgba(255, 215, 0, 0.4);
+
+    user-select: none;
+}
+
+.game-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

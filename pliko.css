@@ -455,15 +455,11 @@ body {
 
     width: 100%;
 
-    display: grid;
+    display: flex;
 
-    grid-template-columns:
-        minmax(0, 1fr)
-        230px;
+    justify-content: center;
 
-    gap: 20px;
-
-    align-items: start;
+    align-items: flex-start;
 
 }
 
@@ -475,6 +471,11 @@ body {
 .plinko-machine {
 
     position: relative;
+
+    width: 100%;
+    max-width: 700px;
+
+    margin: 0 auto;
 
     padding: 25px;
 
@@ -500,7 +501,6 @@ body {
         rgba(212, 175, 55, 0.04);
 
 }
-
 
 /* =========================================================
    TÍTULO
@@ -1443,105 +1443,6 @@ body {
 
 
 /* =========================================================
-   TABELA DE PRÊMIOS
-   ========================================================= */
-
-.paytable {
-
-    padding:
-        16px;
-
-    border:
-        1px solid
-        var(--gold-dark);
-
-    border-radius:
-        8px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #181818,
-            #0D0D0D
-        );
-
-    box-shadow:
-        0 5px 20px
-        rgba(0, 0, 0, 0.6);
-
-}
-
-
-.paytable-title {
-
-    text-align:
-        center;
-
-    margin-bottom:
-        12px;
-
-    font-size:
-        11px;
-
-    font-weight:
-        800;
-
-    letter-spacing:
-        2px;
-
-    color:
-        var(--gold);
-
-}
-
-
-.paytable-row {
-
-    display:
-        flex;
-
-    justify-content:
-        space-between;
-
-    align-items:
-        center;
-
-    gap:
-        10px;
-
-    padding:
-        10px 0;
-
-    border-bottom:
-        1px solid
-        rgba(212, 175, 55, 0.1);
-
-    color:
-        var(--gray);
-
-    font-size:
-        10px;
-
-}
-
-
-.paytable-row:last-child {
-
-    border-bottom:
-        none;
-
-}
-
-
-.paytable-row strong {
-
-    color:
-        var(--gold-bright);
-
-}
-
-
-/* =========================================================
    ANIMAÇÃO
    ========================================================= */
 
@@ -1581,14 +1482,6 @@ body {
 
         grid-template-columns:
             1fr;
-
-    }
-
-
-    .paytable {
-
-        order:
-            2;
 
     }
 

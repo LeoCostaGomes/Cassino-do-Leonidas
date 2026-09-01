@@ -198,7 +198,7 @@ const nomesNumeros = {
    MULTIPLICADORES
    ========================================================= */
 
-const MULTIPLICADOR_INICIAL = 1;
+const MULTIPLICADOR_INICIAL = 1.0;
 const INCREMENTO_MULTIPLICADOR = 0.25;
 
 function obterMultiplicador() {
